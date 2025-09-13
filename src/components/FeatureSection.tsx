@@ -24,7 +24,7 @@ const DATA = [
   {
     title: "Artificial Readers",
     description:
-      "Predict  reception with a virtual audience that models diverse reader perspectives and sentiment",
+      "Predict reception with a virtual audience that models diverse reader perspectives and sentiment",
     icon: "Lightbulb",
     image:
       "https://cdn.cosmos.so/410de9a7-1213-433a-93da-043b0e2e2a7b?format=jpeg",

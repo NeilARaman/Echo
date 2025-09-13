@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
@@ -11,6 +11,9 @@ export default function EchoPage() {
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [communityDescription, setCommunityDescription] = useState("")
   const [isLoading, setIsLoading] = useState(false)
+  const [communities, setCommunities] = useState<Array<{id: string, filename: string, content: string}>>([])
+  const [selectedCommunity, setSelectedCommunity] = useState<string | null>(null)
+  const [loadingCommunities, setLoadingCommunities] = useState(true)
 
   const handleSaveCommunity = async () => {
     if (!communityDescription.trim()) return
@@ -37,12 +40,31 @@ export default function EchoPage() {
       
       setCommunityDescription("")
       setIsDialogOpen(false)
+      fetchCommunities() // Refresh the communities list
     } catch (error) {
       console.error('Error saving community:', error)
     } finally {
       setIsLoading(false)
     }
   }
+
+  const fetchCommunities = async () => {
+    try {
+      const response = await fetch('/api/get-communities')
+      if (response.ok) {
+        const data = await response.json()
+        setCommunities(data.communities)
+      }
+    } catch (error) {
+      console.error('Error fetching communities:', error)
+    } finally {
+      setLoadingCommunities(false)
+    }
+  }
+
+  useEffect(() => {
+    fetchCommunities()
+  }, [])
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="max-w-4xl mx-auto">
@@ -63,14 +85,39 @@ export default function EchoPage() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="flex flex-col items-center justify-center py-8 text-center">
-              <div className="mb-4 p-3 rounded-full bg-muted">
-                <Plus className="h-6 w-6 text-muted-foreground" />
+            {loadingCommunities ? (
+              <div className="flex justify-center py-8">
+                <div className="text-muted-foreground">Loading communities...</div>
               </div>
-              <h3 className="text-lg font-medium mb-2">No communities added yet</h3>
-              <p className="text-muted-foreground mb-6 max-w-sm">
-                Start by adding your first target community to begin testing content reception
-              </p>
+            ) : communities.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-8 text-center">
+                <div className="mb-4 p-3 rounded-full bg-muted">
+                  <Plus className="h-6 w-6 text-muted-foreground" />
+                </div>
+                <h3 className="text-lg font-medium mb-2">No communities added yet</h3>
+                <p className="text-muted-foreground mb-6 max-w-sm">
+                  Start by adding your first target community to begin testing content reception
+                </p>
+              </div>
+            ) : (
+              <div className="grid gap-3 mb-6">
+                {communities.map((community) => (
+                  <div
+                    key={community.id}
+                    onClick={() => setSelectedCommunity(selectedCommunity === community.id ? null : community.id)}
+                    className={`p-4 border rounded-lg cursor-pointer transition-colors hover:bg-muted/50 ${
+                      selectedCommunity === community.id 
+                        ? 'border-primary bg-primary/5 ring-1 ring-primary' 
+                        : 'border-border'
+                    }`}
+                  >
+                    <p className="text-sm">{community.content}</p>
+                  </div>
+                ))}
+              </div>
+            )}
+            
+            <div className="flex justify-center">
               <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
                 <DialogTrigger asChild>
                   <Button>

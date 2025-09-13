@@ -9,7 +9,6 @@ API_KEY = os.getenv("ECHO_KEY")
 JSON_FILE_PATH = "output.json"  # Path to your JSON file
 API_URL = "https://api.anthropic.com/v1/messages"
 
-# System prompt (your Echo prompt)
 SYSTEM_PROMPT = """You are Echo, an AI editorial assistant that synthesizes specialist analyses into concise summary reports for journalists.
 
 ## Input Format

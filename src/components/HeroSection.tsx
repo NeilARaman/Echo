@@ -43,7 +43,7 @@ const HeroSection = () => {
         
         <div className="absolute flex flex-col items-end bottom-20 z-20 max-w-xl lg:right-0 lg:bottom-45">
           <h2 className="relative z-30 text-foreground text-right font-playfair text-5xl tracking-tighter lg:text-7xl">
-            With Echo Platform
+            With Echo
           </h2>
         </div>
 

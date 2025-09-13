@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <title>Multi-Audience RAG (Flask + FAISS + Claude)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <link rel="stylesheet" href="/static/styles.css"/>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Multi-Audience RAG</h1>
+      <p>10 editorial bots + 5 dynamic audience personas share one FAISS index. Seed, ingest, then analyze your draft.</p>
+    </header>
+
+    <section class="controls">
+      <div class="row">
+        <button id="seedBtn">Seed Synthetic Corpus</button>
+        <input id="globInput" type="text" value="data/docs/**/*.*" />
+        <button id="ingestBtn">Ingest Glob</button>
+        <label class="file">
+          <input id="fileInput" type="file"/>
+          <span>Upload & Ingest</span>
+        </label>
+      </div>
+      <div id="status" class="status"></div>
+    </section>
+
+    <section class="draft">
+      <div class="row">
+        <button id="loadSample">Load Sample Draft</button>
+        <label>top_k <input id="topK" type="number" min="3" max="20" value="8"/></label>
+        <label>temperature <input id="temp" type="number" step="0.1" min="0" max="1.5" value="0.3"/></label>
+        <label>max_tokens <input id="maxTok" type="number" min="300" max="2000" value="900"/></label>
+        <button id="analyzeBtn" class="primary">Analyze Draft</button>
+      </div>
+      <textarea id="draft" rows="10" placeholder="Paste your article draft here..."></textarea>
+    </section>
+
+    <section id="retrieval" class="panel">
+      <h2>Retrieval Snippets</h2>
+      <div id="snippets"></div>
+    </section>
+
+    <section id="report" class="panel">
+      <h2>Consensus Report (Editorial)</h2>
+      <div id="scores"></div>
+      <div class="grid">
+        <div>
+          <h3>Top Consensus Suggestions</h3>
+          <ul id="consSuggestions"></ul>
+        </div>
+        <div>
+          <h3>Top Consensus Risks</h3>
+          <ul id="consRisks"></ul>
+        </div>
+        <div class="full">
+          <h3>Headline Ideas Pool</h3>
+          <ul id="headlines"></ul>
+        </div>
+      </div>
+    </section>
+
+    <section id="audience-report" class="panel">
+      <h2>Audience Rollup</h2>
+      <div id="audienceScores"></div>
+      <div class="grid">
+        <div>
+          <h3>Top Audience Concerns</h3>
+          <ul id="audienceTopConcerns"></ul>
+        </div>
+        <div>
+          <h3>Top Audience Questions</h3>
+          <ul id="audienceTopQuestions"></ul>
+        </div>
+      </div>
+    </section>
+
+    <section id="bots" class="panel">
+      <h2>Per-Bot Feedback (Editorial)</h2>
+      <div id="botCards" class="cards"></div>
+    </section>
+
+    <section id="audience-bots" class="panel">
+      <h2>Audience Bots (Draft-Specific Personas)</h2>
+      <div id="audienceCards" class="cards"></div>
+    </section>
+  </div>
+  <script src="/static/app.js"></script>
+</body>
+</html>

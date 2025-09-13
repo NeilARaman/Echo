@@ -25,7 +25,7 @@ const Navbar = () => {
   const pathname = usePathname();
   
   return (
-    <section className="fixed inset-x-0 top-0 z-20 bg-stone-100">
+    <section className="fixed inset-x-0 top-0 z-20">
       <div className="container max-w-7xl mx-auto px-4">
         <div className="flex w-full items-center justify-between gap-12 py-4">
           <a href="/" className="flex items-center gap-2">

@@ -1,8 +1,48 @@
+"use client"
+
+import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+import { Input } from "@/components/ui/input"
 import { Plus } from "lucide-react"
 
 export default function EchoPage() {
+  const [isDialogOpen, setIsDialogOpen] = useState(false)
+  const [communityDescription, setCommunityDescription] = useState("")
+  const [isLoading, setIsLoading] = useState(false)
+
+  const handleSaveCommunity = async () => {
+    if (!communityDescription.trim()) return
+    
+    setIsLoading(true)
+    try {
+      const timestamp = new Date().toISOString().replace(/[:.]/g, '-')
+      const filename = `community_${timestamp}.txt`
+      
+      const response = await fetch('/api/save-community', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          filename,
+          content: communityDescription
+        })
+      })
+      
+      if (!response.ok) {
+        throw new Error('Failed to save community')
+      }
+      
+      setCommunityDescription("")
+      setIsDialogOpen(false)
+    } catch (error) {
+      console.error('Error saving community:', error)
+    } finally {
+      setIsLoading(false)
+    }
+  }
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="max-w-4xl mx-auto">
@@ -31,10 +71,43 @@ export default function EchoPage() {
               <p className="text-muted-foreground mb-6 max-w-sm">
                 Start by adding your first target community to begin testing content reception
               </p>
-              <Button>
-                <Plus className="h-4 w-4 mr-2" />
-                Add Community
-              </Button>
+              <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+                <DialogTrigger asChild>
+                  <Button>
+                    <Plus className="h-4 w-4 mr-2" />
+                    Add Community
+                  </Button>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Add Target Community</DialogTitle>
+                    <DialogDescription>
+                      Describe the community where you want to test your content reception.
+                    </DialogDescription>
+                  </DialogHeader>
+                  <div className="py-4">
+                    <Input
+                      placeholder="e.g., Tech enthusiasts on Reddit who are interested in AI and machine learning..."
+                      value={communityDescription}
+                      onChange={(e) => setCommunityDescription(e.target.value)}
+                    />
+                  </div>
+                  <DialogFooter>
+                    <Button 
+                      variant="outline" 
+                      onClick={() => setIsDialogOpen(false)}
+                    >
+                      Cancel
+                    </Button>
+                    <Button 
+                      onClick={handleSaveCommunity}
+                      disabled={!communityDescription.trim() || isLoading}
+                    >
+                      {isLoading ? "Saving..." : "Save Community"}
+                    </Button>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
             </div>
           </CardContent>
         </Card>

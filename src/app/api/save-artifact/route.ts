@@ -13,7 +13,7 @@ export async function POST(request: NextRequest) {
       )
     }
     
-    const communityFolderPath = join(process.cwd(), 'backend', 'data', 'communities', communityId)
+    const communityFolderPath = join(process.cwd(), 'backend', 'data', communityId)
     
     // Create community folder if it doesn't exist
     try {

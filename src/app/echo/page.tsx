@@ -16,6 +16,7 @@ export default function EchoPage() {
   const [selectedCommunity, setSelectedCommunity] = useState<string | null>(null)
   const [loadingCommunities, setLoadingCommunities] = useState(true)
   const [draftText, setDraftText] = useState("")
+  const [isSimulating, setIsSimulating] = useState(false)
 
   const handleSaveCommunity = async () => {
     if (!communityDescription.trim()) return
@@ -61,6 +62,38 @@ export default function EchoPage() {
       console.error('Error fetching communities:', error)
     } finally {
       setLoadingCommunities(false)
+    }
+  }
+
+  const handleSimulate = async () => {
+    if (!selectedCommunity || !draftText.trim()) return
+    
+    setIsSimulating(true)
+    try {
+      const response = await fetch('/api/save-artifact', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          communityId: selectedCommunity,
+          content: draftText
+        })
+      })
+      
+      if (!response.ok) {
+        throw new Error('Failed to save artifact')
+      }
+      
+      const data = await response.json()
+      console.log('Artifact saved:', data)
+      
+      // Clear the draft text after successful save
+      setDraftText("")
+    } catch (error) {
+      console.error('Error saving artifact:', error)
+    } finally {
+      setIsSimulating(false)
     }
   }
 
@@ -202,15 +235,21 @@ export default function EchoPage() {
                 </div>
                 <div className="flex justify-center">
                   <Button
-                    disabled={!draftText.trim()}
+                    onClick={handleSimulate}
+                    disabled={!draftText.trim() || isSimulating}
                     className="px-8"
                   >
-                    Simulate Reception
+                    {isSimulating ? "Saving Artifact..." : "Simulate Reception"}
                   </Button>
                 </div>
                 {!draftText.trim() && (
                   <p className="text-xs text-muted-foreground text-center">
                     Enter draft content to simulate reception
+                  </p>
+                )}
+                {isSimulating && (
+                  <p className="text-xs text-muted-foreground text-center">
+                    Saving your artifact...
                   </p>
                 )}
               </div>

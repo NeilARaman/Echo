@@ -8,13 +8,7 @@ import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Plus } from "lucide-react"
 import NetworkAnimation from "@/components/NetworkAnimation"
-
-type Community = { id: string; folderName: string; content: string }
-
-// Expose your Flask base URL via .env.local:
-// NEXT_PUBLIC_FLASK_BASE_URL=http://localhost:5000
-const FLASK_BASE =
-  process.env.NEXT_PUBLIC_FLASK_BASE_URL?.replace(/\/+$/, "") || "http://localhost:5000"
+import ResultDisplay from "@/components/ResultDisplay"
 
 export default function EchoPage() {
   const [isDialogOpen, setIsDialogOpen] = useState(false)
@@ -29,6 +23,10 @@ export default function EchoPage() {
   const [draftText, setDraftText] = useState("")
   const [isSimulating, setIsSimulating] = useState(false)
   const [showAnimation, setShowAnimation] = useState(false)
+  const [showResults, setShowResults] = useState(false)
+  const [resultData, setResultData] = useState<any>(null)
+  const [currentArtifactNumber, setCurrentArtifactNumber] = useState(null)
+  const [loadingResults, setLoadingResults] = useState(false)
 
   // --- data fetch ---
   const fetchCommunities = async () => {
@@ -105,59 +103,145 @@ export default function EchoPage() {
     }
   }
 
-  // --- simulate draft reception: save artifact, then secure handoff to Flask (no draft in URL) ---
-  // --- simulate draft reception: save artifact, call Next proxy -> Flask, then redirect to Flask run page ---
-const handleSimulate = async () => {
-  if (!selectedCommunity || !draftText.trim()) return;
-  setIsSimulating(true);
-  try {
-    // 1) (Optional) Persist the draft for your own records
-    const persist = await fetch("/api/save-artifact", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ communityId: selectedCommunity, content: draftText }),
-    });
-    if (!persist.ok) throw new Error("Failed to save artifact");
-
-    // 2) Visual feedback while we wait
-    setShowAnimation(true);
-
-    // 3) Ask Flask to analyze via the Next proxy (NO CORS in browser)
-    const res = await fetch("/api/flask-analyze", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        draft: draftText,
-        top_k: 8,
-        temperature: 0.3,
-        max_tokens: 900,
-      }),
-    });
-
-    const json = await res.json().catch(() => ({} as any));
-    if (!res.ok || json?.ok === false || !json?.run_id) {
-      throw new Error(json?.error || `Analyze failed: HTTP ${res.status}`);
+  const fetchCommunities = async () => {
+    try {
+      const response = await fetch('/api/get-communities')
+      if (response.ok) {
+        const data = await response.json()
+        setCommunities(data.communities)
+      }
+    } catch (error) {
+      console.error('Error fetching communities:', error)
+    } finally {
+      setLoadingCommunities(false)
     }
+  }
 
-    // 4) Redirect to Flask's run viewer page
-    const FLASK_BASE =
-      process.env.NEXT_PUBLIC_FLASK_BASE_URL?.replace(/\/+$/, "") || "http://127.0.0.1:5000";
-    window.location.assign(`${FLASK_BASE}/run/${encodeURIComponent(json.run_id)}`);
-  } catch (error) {
-    console.error("Error during simulation:", error);
-    setIsSimulating(false);
-    setShowAnimation(false);
-    alert(String(error));
+  const handleSimulate = async () => {
+    if (!selectedCommunity || !draftText.trim()) return
+    
+    setIsSimulating(true)
+    try {
+      const response = await fetch('/api/save-artifact', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          communityId: selectedCommunity,
+          content: draftText
+        })
+      })
+      
+      if (!response.ok) {
+        throw new Error('Failed to save artifact')
+      }
+      
+      const data = await response.json()
+      console.log('Artifact saved:', data)
+      
+      // Store artifact number for later response fetching
+      setCurrentArtifactNumber(data.artifactNumber)
+      
+      // Show animation after successful save
+      setShowAnimation(true)
+    } catch (error) {
+      console.error('Error saving artifact:', error)
+      setIsSimulating(false)
+    }
   }
 };
 
 
-  const handleAnimationComplete = () => {
+  const handleAnimationComplete = async () => {
     setShowAnimation(false)
-    setIsSimulating(false)
-    setDraftText("")
+    setLoadingResults(true)
+    
+    try {
+      // Try to fetch the response file
+      const response = await fetch(`/api/get-response?communityId=${selectedCommunity}&artifactNumber=${currentArtifactNumber}`)
+      const data = await response.json()
+      
+      if (data.success && data.found && data.data) {
+        // Response file exists, use the actual data
+        setResultData(data.data)
+        setShowResults(true)
+      } else {
+        // Response file doesn't exist, show template with message
+        setResultData({
+          ...templateResultData,
+          _isTemplate: true,
+          _message: data.message || 'Analysis is still processing...'
+        })
+        setShowResults(true)
+      }
+    } catch (error) {
+      console.error('Error fetching response:', error)
+      // Fallback to template data
+      setResultData({
+        ...templateResultData,
+        _isTemplate: true,
+        _message: 'Unable to load analysis results. Please try again later.'
+      })
+      setShowResults(true)
+    } finally {
+      setLoadingResults(false)
+      setIsSimulating(false)
+    }
   }
 
+  const handleNewTest = () => {
+    setShowResults(false)
+    setDraftText("")
+    setSelectedCommunity(null)
+    setResultData(null)
+    setCurrentArtifactNumber(null)
+  }
+
+  // Template data for result display
+  const templateResultData = {
+    executive_summary: {
+      overall_readiness_score: "6.36/10",
+      key_findings: [
+        "The article provides a nuanced, data-driven analysis of millennial political perspectives and policy preferences, highlighting their pragmatic, evidence-based approach to local governance.",
+        "There is a need to address potential overgeneralization of millennial political views and ensure policy interventions accommodate the internal diversity within this generation.",
+        "The article demonstrates significant potential for data-driven, equity-focused policy development that can directly improve residents' lived experiences."
+      ],
+      top_priority: "Mitigate the risk of overgeneralizing millennial political perspectives by incorporating more explicit caveats about demographic variations and designing flexible policy approaches."
+    },
+    key_insights: {
+      most_common_suggestions: "The dominant themes in the consensus suggestions are around incorporating more quantitative data, designing specific and measurable policy interventions, and developing flexible, equity-driven frameworks that address intersectional challenges.",
+      quickest_wins: [
+        "Include more quantitative data about millennial voting patterns and political engagement",
+        "Develop h2/h3 outline focusing on: policy pragmatism, local innovation, equity-driven solutions"
+      ],
+      primary_risks: {
+        summary: "The primary risks identified are around the potential for overgeneralizing millennial political perspectives and underestimating the internal diversity within this generation's political views.",
+        top_risks: [
+          {
+            risk: "Overgeneralizing millennial political perspectives",
+            severity: 7,
+            mitigation: "Use nuanced demographic research; avoid blanket statements"
+          },
+          {
+            risk: "Overestimating millennial voting bloc homogeneity",
+            severity: 7,
+            mitigation: "Design flexible policy approaches accommodating diverse perspectives"
+          }
+        ]
+      },
+      focus_area: "Improving the 'risk' category score by addressing potential overgeneralization and ensuring policy interventions accommodate diverse millennial perspectives.",
+      agent_perspectives: {
+        highest_rated: "The 'Fact Checker' agent has the highest average score of 7.6, likely due to strong performance in clarity, accuracy, and engagement.",
+        lowest_rated: "The 'Copy & Clarity Editor' and 'SEO & Discoverability' agents have the lowest average score of 7.2, likely due to relatively lower scores in novelty and risk."
+      },
+      predicted_discussion: "The audience discussion indicates broad support for the article's pragmatic, data-driven approach to policy development, particularly in areas like climate resilience, housing, and civic technology, while raising concerns about implementation complexity and resource constraints."
+    }
+  }
+
+  useEffect(() => {
+    fetchCommunities()
+  }, [])
   return (
     <div className="container mx-auto px-4 py-8 pt-24">
       <div className="max-w-4xl mx-auto">
@@ -266,7 +350,19 @@ const handleSimulate = async () => {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            {showAnimation ? (
+            {loadingResults ? (
+              <div className="flex flex-col items-center justify-center py-12">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mb-4"></div>
+                <p className="text-sm text-muted-foreground">Loading analysis results...</p>
+              </div>
+            ) : showResults && resultData ? (
+              <ResultDisplay 
+                data={resultData} 
+                onNewTest={handleNewTest}
+                isTemplate={resultData._isTemplate}
+                message={resultData._message}
+              />
+            ) : showAnimation ? (
               <NetworkAnimation onComplete={handleAnimationComplete} />
             ) : !selectedCommunity ? (
               <div className="flex flex-col items-center justify-center py-8 text-center">

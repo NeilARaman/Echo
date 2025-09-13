@@ -130,36 +130,36 @@ def save_response(response, output_file="echo_report.json"):
             parsed_content = json.loads(content)
             with open(output_file, 'w') as f:
                 json.dump(parsed_content, f, indent=2)
-            print(f"✅ Report saved to {output_file}")
+            #print(f"✅ Report saved to {output_file}")
         except json.JSONDecodeError:
             # If not JSON, save as text
             with open(output_file.replace('.json', '.txt'), 'w') as f:
                 f.write(content)
-            print(f"✅ Report saved as text to {output_file.replace('.json', '.txt')}")
+            #print(f"✅ Report saved as text to {output_file.replace('.json', '.txt')}")
             
     except Exception as e:
         print(f"Error saving response: {e}")
 
 def main():
     # Load JSON data
-    print(f"📁 Loading {JSON_FILE_PATH}...")
+    #print(f"📁 Loading {JSON_FILE_PATH}...")
     json_data = load_json_file(JSON_FILE_PATH)
     
     if not json_data:
         return
     
-    print("🤖 Sending to Claude API...")
+    #print("🤖 Sending to Claude API...")
     
     # Call Claude API
     response = call_claude_api(json_data)
     
     if response:
-        print("✅ Received response from Claude")
+        #print("✅ Received response from Claude")
         save_response(response)
         
         # Print the response to console too
-        print("\n📊 Echo Report:")
-        print("=" * 50)
+        #print("\n📊 Echo Report:")
+        #print("=" * 50)
         print(response['content'][0]['text'])
     else:
         print("❌ Failed to get response from Claude")

@@ -312,35 +312,52 @@ def main():
     
     return 0
 
-if __name__ == "__main__":
-    sys.exit(main())
-
 # Example usage in a script:
-def extract_and_run_echo(analysis_file_path: str, echo_script_path: str = None):
+def extract_and_run_echo(analysis_folder_name: str, analysis_file_name: str):
     """Helper function to extract data and run Echo in one step."""
     extractor = EchoDataExtractor()
+    analysis_file_path = os.path.join(analysis_folder_name, analysis_file_name)
     echo_data = extractor.transform_to_echo_format(analysis_file_path)
-    
-    # Save to temp file
-    import tempfile
-    with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
+
+    # Extract int from analysis_file_name like "rag_123.txt"
+    i = int(analysis_file_name.replace("rag_", "").replace(".json", ""))
+
+    # Save to "llmready_i.json" in the analysis folder
+    output_file = os.path.join(analysis_folder_name, f"llmready_{i}.json")
+    with open(output_file, 'w', encoding='utf-8') as f:
         json.dump(echo_data, f, indent=2, ensure_ascii=False)
-        temp_file = f.name
     
-    print(f"Echo data saved to temporary file: {temp_file}")
+    print(f"Echo data saved to: {output_file}")
     
+    echo_script_path = os.path.join(os.path.dirname(__file__), 'echo_api_script.py')
+
+    response_file = None
     # If Echo script provided, run it
-    if echo_script_path and os.path.exists(echo_script_path):
+    if os.path.exists(echo_script_path):
         import subprocess
         result = subprocess.run([
-            'python', echo_script_path, temp_file
+            'python3', echo_script_path, output_file
         ], capture_output=True, text=True)
         
         if result.returncode == 0:
             print("ECHO EDITORIAL SUMMARY:")
             print("=" * 50)
             print(result.stdout)
+            # Save response to response_i.json
+            response_file = os.path.join(analysis_folder_name, f"response_{i}.json")
+            with open(response_file, 'w', encoding='utf-8') as resp_f:
+                resp_f.write(result.stdout)
+            print(f"Echo response saved to: {response_file}")
         else:
             print("Error running Echo:", result.stderr)
+    else:
+        print(f"Echo script not found at {echo_script_path}")
     
-    return echo_data, temp_file
+    return output_file, response_file
+
+if __name__ == "__main__":
+    # Example usage
+    extract_and_run_echo("../data/community_2025-09-13T18-48-29-962Z", "rag_1.json")
+
+"""if __name__ == "__main__":
+    sys.exit(main())"""

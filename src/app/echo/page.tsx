@@ -12,7 +12,7 @@ export default function EchoPage() {
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [communityDescription, setCommunityDescription] = useState("")
   const [isLoading, setIsLoading] = useState(false)
-  const [communities, setCommunities] = useState<Array<{id: string, filename: string, content: string}>>([])
+  const [communities, setCommunities] = useState<Array<{id: string, folderName: string, content: string}>>([])
   const [selectedCommunity, setSelectedCommunity] = useState<string | null>(null)
   const [loadingCommunities, setLoadingCommunities] = useState(true)
   const [draftText, setDraftText] = useState("")

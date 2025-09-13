@@ -60,7 +60,7 @@ export default function FAQs() {
                 What data sources does Echo use?
               </h3>
               <p className="text-muted-foreground mt-4">
-                Echo integrates with major news APIs, Google Fact Check Tools, social media trends, and maintains a database of historical article performance for context.
+                Echo integrates with major news APIs such as NYT and the Guardian, vast information collection via Firecrawl, social media trends, and maintains a collection of historical article performance for context.
               </p>
             </div>
           </div>

@@ -118,40 +118,72 @@ export default function EchoPage() {
   }
 
   const handleSimulate = async () => {
-    if (!selectedCommunity || !draftText.trim()) return
-    
-    setIsSimulating(true)
-    try {
-      const response = await fetch('/api/save-artifact', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          communityId: selectedCommunity,
-          content: draftText
-        })
+  if (!selectedCommunity || !draftText.trim()) return
+
+  setIsSimulating(true)
+  try {
+    const response = await fetch('/api/save-artifact', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        communityId: selectedCommunity,
+        content: draftText
       })
-      
-      if (!response.ok) {
-        throw new Error('Failed to save artifact')
-      }
-      
-      const data = await response.json()
-      console.log('Artifact saved:', data)
-      
-      // Store artifact number for later response fetching
-      setCurrentArtifactNumber(data.artifactNumber)
-      
-      // Show animation after successful save
-      setShowAnimation(true)
-    } catch (error) {
-      console.error('Error saving artifact:', error)
-      setIsSimulating(false)
+    })
+
+    if (!response.ok) {
+      throw new Error('Failed to save artifact')
+    }
+
+    const data = await response.json()
+    setCurrentArtifactNumber(data.artifactNumber)
+    setShowAnimation(true)
+
+    // Start polling for the response file while animation is running
+    setLoadingResults(true)
+    const pollResult = await pollForResponse(selectedCommunity, data.artifactNumber)
+    setShowAnimation(false)
+    if (pollResult.found) {
+      setResultData(pollResult.data)
+      setShowResults(true)
+    } else {
+      setResultData({
+        ...templateResultData,
+        _isTemplate: true,
+        _message: 'Analysis is still processing...'
+      })
+      setShowResults(true)
+    }
+  } catch (error) {
+    console.error('Error saving artifact:', error)
+    setIsSimulating(false)
+    } finally {
+    setLoadingResults(false)
+    setIsSimulating(false)
     }
   }
 };
 
+
+  const pollForResponse = async (communityId: string, artifactNumber: any, interval = 2000, maxAttempts = 300) => {
+  let attempts = 0;
+  while (attempts < maxAttempts) {
+    try {
+      const response = await fetch(`/api/get-response?communityId=${communityId}&artifactNumber=${artifactNumber}`);
+      const data = await response.json();
+      if (data.success && data.found && data.data) {
+        return { found: true, data: data.data };
+      }
+    } catch (error) {
+      // Ignore errors and keep polling
+    }
+    await new Promise((resolve) => setTimeout(resolve, interval));
+    attempts++;
+  }
+  return { found: false };
+  };
 
   const handleAnimationComplete = async () => {
     setShowAnimation(false)

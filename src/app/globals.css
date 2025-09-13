@@ -1,12 +1,112 @@
-@import url("https://fonts.googleapis.com/css2?family=Playfair:ital,opsz,wght@0,5..1200,300..900;1,5..1200,300..900&display=swap");
-@import url("https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,300..900;1,300..900&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@200..900&display=swap");
 @import "tailwindcss";
 @import "tw-animate-css";
 
-h2,
-h3,
-h4 {
-  font-family: "Playfair Display", serif;
+/* Design System Variables */
+:root {
+  /* Colors */
+  --color-primary-black: #000000;
+  --color-primary-white: #FFFFFF;
+  --color-background: #FAFAFA;
+  --color-text-primary: #0A0A0A;
+  --color-text-secondary: #6B7280;
+  --color-accent-blue: #5B8DEF;
+  --color-accent-purple: #9B59B6;
+  --color-accent-pink: #E91E63;
+  
+  /* Typography */
+  --font-family-serif: 'Playfair Display', 'Georgia', serif;
+  --font-family-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-size-h1: clamp(48px, 8vw, 96px);
+  --font-size-h2: clamp(36px, 5vw, 64px);
+  --font-size-h3: clamp(24px, 3vw, 36px);
+  --font-size-body: 16px;
+  --font-size-small: 14px;
+  --font-size-caption: 12px;
+  --line-height-tight: 1.1;
+  --line-height-normal: 1.6;
+  --line-height-relaxed: 1.8;
+  
+  /* Spacing */
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 16px;
+  --space-lg: 32px;
+  --space-xl: 64px;
+  --space-2xl: 128px;
+  --space-3xl: 256px;
+  
+  /* Layout */
+  --container-max-width: 1440px;
+  --content-max-width: 1200px;
+  --text-max-width: 720px;
+  --gutter-width: 32px;
+  --section-padding-vertical: 120px;
+  --section-padding-mobile: 60px;
+}
+
+/* Typography Hierarchy */
+h1, .h1 {
+  font-family: var(--font-family-serif);
+  font-size: var(--font-size-h1);
+  line-height: var(--line-height-tight);
+  font-weight: 300;
+  letter-spacing: -0.02em;
+}
+
+h2, .h2 {
+  font-family: var(--font-family-serif);
+  font-size: var(--font-size-h2);
+  line-height: var(--line-height-tight);
+  font-weight: 400;
+  letter-spacing: -0.01em;
+}
+
+h3, .h3 {
+  font-family: var(--font-family-serif);
+  font-size: var(--font-size-h3);
+  line-height: var(--line-height-tight);
+  font-weight: 500;
+}
+
+body {
+  font-family: var(--font-family-sans);
+  font-size: var(--font-size-body);
+  line-height: var(--line-height-normal);
+  color: var(--color-text-primary);
+}
+
+/* Platform-specific typography classes */
+.headline-large {
+  font-family: var(--font-family-serif);
+  font-size: clamp(2rem, 4vw, 3.5rem);
+  font-weight: 300;
+  line-height: 1.1;
+  letter-spacing: -0.025em;
+}
+
+.headline-medium {
+  font-family: var(--font-family-serif);
+  font-size: clamp(1.25rem, 2.5vw, 1.75rem);
+  font-weight: 400;
+  line-height: 1.2;
+  letter-spacing: -0.015em;
+}
+
+.body-sans {
+  font-family: var(--font-family-sans);
+  font-size: 0.875rem;
+  font-weight: 400;
+  line-height: 1.5;
+}
+
+.label-sans {
+  font-family: var(--font-family-sans);
+  font-size: 0.75rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
 @custom-variant dark (&:is(.dark *));
@@ -124,6 +224,11 @@ h4 {
   * {
     @apply border-border outline-ring/50;
   }
+  
+  html {
+    scroll-behavior: smooth;
+  }
+  
   body {
     @apply bg-background text-foreground;
   }
@@ -131,6 +236,20 @@ h4 {
   h2 {
     @apply text-5xl tracking-tight lg:text-7xl;
   }
+}
+
+/* Galaxy spiral slow rotation animation */
+@keyframes spin-slow {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin-slow {
+  animation: spin-slow 20s linear infinite;
 }
 
 /* Hide Next.js error overlay portal */

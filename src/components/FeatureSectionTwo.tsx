@@ -45,7 +45,7 @@ const LIST: Array<list> = [
 ];
 const FeatureSectionTwo = () => {
   return (
-    <section className="">
+    <section id="fact-first" className="">
       <div className="container max-w-7xl mx-auto ">
         <div className="mx-auto mb-8 flex  flex-col items-start justify-between gap-6 md:mb-20">
           <h2 className="text-left text-5xl max-w-4xl text-foreground lg:text-6xl">

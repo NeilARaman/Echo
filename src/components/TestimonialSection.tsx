@@ -1,5 +1,6 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent } from "@/components/ui/card";
+import GalaxySpiral from "@/components/GalaxySpiral";
 
 type Testimonial = {
   name: string;
@@ -116,10 +117,17 @@ export default function TestimonialSection() {
     <section>
       <div className="py-16 md:py-32">
         <div className="mx-auto max-w-7xl px-6">
-          <div className="text-center">
+          <div className="text-center relative">
             <h2 className="text-title text-6xl text-foreground ">
               Trusted by Echo Journalists
             </h2>
+            <div className="flex justify-center mt-4 mb-2">
+              <GalaxySpiral 
+                size={40} 
+                className="opacity-25" 
+                animate={true}
+              />
+            </div>
             <p className="text-body mt-6">
               Echo empowers newsrooms with AI agents for fact-first journalism,
               ensuring accuracy and reader trust.

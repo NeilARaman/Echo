@@ -2,6 +2,7 @@ import { PocketKnife } from "lucide-react";
 import React from "react";
 
 import { Badge } from "@/components/ui/badge";
+import GalaxySpiral from "@/components/GalaxySpiral";
 
 const DATA = [
   {
@@ -31,12 +32,19 @@ const DATA = [
 ];
 const FeatureSection = () => {
   return (
-    <section className="py-32 max-w-7xl mx-auto ">
+    <section id="societies" className="py-32 max-w-7xl mx-auto ">
       <div className="border-y">
-        <div className="container flex flex-col gap-6 border-x py-4 max-lg:border-x lg:py-8 px-7">
-          <h2 className="text-3xl leading-tight tracking-tight  font-extralight md:text-4xl lg:text-6xl">
-            Artificial Societies for Journalism
-          </h2>
+        <div className="container flex flex-col gap-6 border-x py-4 max-lg:border-x lg:py-8 px-7 relative">
+          <div className="flex items-center gap-4">
+            <h2 className="text-3xl leading-tight tracking-tight  font-extralight md:text-4xl lg:text-6xl flex-1">
+              Artificial Societies for Journalism
+            </h2>
+            <GalaxySpiral 
+              size={60} 
+              className="opacity-20 hidden lg:block" 
+              animate={true}
+            />
+          </div>
           <p className="text-muted-foreground max-w-[600px] tracking-[-0.32px]">
             Deploy AI agent swarms that fact-check, analyze bias, and simulate 
             reader reception—all before your article goes live.

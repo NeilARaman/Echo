@@ -13,7 +13,7 @@ export async function POST(request: NextRequest) {
       )
     }
     
-    const filePath = join(process.cwd(), 'backend', 'data', filename)
+    const filePath = join(process.cwd(), 'backend', 'data', 'communities', filename)
     
     await writeFile(filePath, content, 'utf8')
     

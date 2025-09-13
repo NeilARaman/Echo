@@ -22,9 +22,9 @@ const DATA = [
       "https://cdn.cosmos.so/c32afa87-08ab-4e83-b768-7c1c7877e889?format=jpeg",
   },
   {
-    title: "Reader Simulation",
+    title: "Artificial Readers",
     description:
-      "Predict audience reception with artificial societies that model diverse reader perspectives and sentiment",
+      "Predict  reception with a virtual audience that models diverse reader perspectives and sentiment",
     icon: "Lightbulb",
     image:
       "https://cdn.cosmos.so/410de9a7-1213-433a-93da-043b0e2e2a7b?format=jpeg",
@@ -37,7 +37,7 @@ const FeatureSection = () => {
         <div className="container flex flex-col gap-6 border-x py-4 max-lg:border-x lg:py-8 px-7 relative">
           <div className="flex items-center gap-4">
             <h2 className="text-3xl leading-tight tracking-tight  font-extralight md:text-4xl lg:text-6xl flex-1">
-              Artificial Societies for Journalism
+              Simulated Communities for Journalism
             </h2>
             <GalaxySpiral 
               size={60} 
@@ -46,7 +46,7 @@ const FeatureSection = () => {
             />
           </div>
           <p className="text-muted-foreground max-w-[600px] tracking-[-0.32px]">
-            Deploy AI agent swarms that fact-check, analyze bias, and simulate 
+            Deploy AI agent swarms that fact-check, analyze bias, and predict 
             reader reception—all before your article goes live.
           </p>
         </div>

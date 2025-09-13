@@ -2,7 +2,7 @@
 
 ## Simulations for Journalism
 
-Echo revolutionizes journalism by leveraging swarms of AI agents and artificial societies to help journalists create fact-checked, well-balanced, and impactful articles. Built for publications like The New York Times and Wall Street Journal, Echo ensures factual accuracy while maintaining journalistic integrity.
+Echo revolutionizes journalism by leveraging AI agents and simulated communities to help journalists create fact-checked, well-balanced, and impactful articles. Built for reputable publications, Echo ensures factual accuracy while maintaining journalistic integrity.
 
 ![Next.js](https://img.shields.io/badge/Next.js-15.4.5-black)
 ![React](https://img.shields.io/badge/React-19.1.1-blue)
@@ -16,7 +16,7 @@ In today's media landscape, maintaining factual accuracy and balanced reporting 
 - **Fact Verification**: AI agents swarm the web for real-time information verification
 - **Bias Detection**: Continuous analysis for hedging and balanced reporting
 - **Historical Analysis**: Indexing previous articles to learn from past successes and failures
-- **Artificial Societies**: Simulating public reaction to articles before publication
+- **Virtual Communities**: Simulating public reaction to articles before publication
 - **Quality Assurance**: Flagging inconsistencies and suggesting improvements
 
 ## ✨ Key Features
@@ -39,7 +39,7 @@ In today's media landscape, maintaining factual accuracy and balanced reporting 
 - Learning from publication success patterns
 - Predictive modeling for article reception
 
-### 🌍 Artificial Societies Simulation
+### 🌍 Virtual Communities Simulation
 
 - Simulate public reaction before publication
 - Test article impact across different demographics
@@ -153,7 +153,7 @@ echo-frontend/
 2. **Start Article**: Begin with our AI-assisted writing interface
 3. **Fact Check**: Let AI agents verify your sources in real-time
 4. **Balance Check**: Receive suggestions for balanced reporting
-5. **Simulate Impact**: Test article reception with artificial societies
+5. **Simulate Impact**: Test article reception with virtual communities
 6. **Publish**: Release fact-checked, balanced content
 
 ### For Publications

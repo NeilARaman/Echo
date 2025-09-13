@@ -46,15 +46,6 @@ const GalaxySpiral: React.FC<GalaxySpiralProps> = ({
           </filter>
         </defs>
 
-        {/* Background circle */}
-        <circle 
-          cx="100" 
-          cy="100" 
-          r="95" 
-          fill="url(#galaxyGradient)" 
-          opacity="0.1"
-        />
-
         {/* Spiral arms */}
         <g filter="url(#glow)">
           {/* Main spiral arm */}
@@ -99,22 +90,22 @@ const GalaxySpiral: React.FC<GalaxySpiralProps> = ({
           <circle cx="35" cy="165" r="1" fill="#ffffff" />
         </g>
 
-        {/* Central bright core */}
+        {/* Central bright core - more visible sphere */}
         <circle 
           cx="100" 
           cy="100" 
-          r="8" 
+          r="15" 
           fill="url(#centerGlow)" 
           filter="url(#glow)"
         />
         
-        {/* Central nucleus */}
+        {/* Central nucleus - enhanced visibility */}
         <circle 
           cx="100" 
           cy="100" 
-          r="3" 
+          r="8" 
           fill="#fbbf24" 
-          opacity="0.9"
+          opacity="1"
         />
       </svg>
     </div>

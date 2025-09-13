@@ -36,7 +36,7 @@ const LIST: Array<list> = [
     title: "Simulate reader reception before you publish anything.",
     value: "3",
     summary:
-      "Echo creates artificial societies that predict how different demographics will receive your article, ensuring balanced journalism every time.",
+      "Echo creates virtual networks that predict how different demographics will receive your article, ensuring balanced journalism every time.",
     image: {
       src: "https://cdn.cosmos.so/65975927-a67d-4024-9f78-cc6a3f6c737f?format=jpeg",
       alt: "Reader simulation and analytics",

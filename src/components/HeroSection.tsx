@@ -45,15 +45,6 @@ const HeroSection = () => {
           <h2 className="relative z-30 text-foreground text-right font-playfair text-5xl tracking-tighter lg:text-7xl">
             With Echo Platform
           </h2>
-          <div className="flex gap-2">
-            <Button 
-              className="group self-end mt-10 h-14 w-40 flex cursor-pointer active:scale-[0.98]  items-center justify-center gap-2  bg-white text-primary border-border outline-2 hover:bg-gray-200 rounded-full border px-4 py-1 tracking-tight"
-              onClick={() => window.location.href = '/platform'}
-            >
-              Book a Demo
-              <ChevronRight className="size-4 mt-1  transition-all ease-out group-hover:rotate-0" />
-            </Button>
-          </div>
         </div>
       </div>
     </section>

@@ -1,0 +1,4 @@
+Health and Air Quality
+- Two-stroke engines emit unburned hydrocarbons and fine particulates; exposure correlates with respiratory irritation.
+- Hearing protection standards recommend limiting exposure above 85 dB for workers.
+- Hospital outpatient visits for asthma flare-ups tend to cluster on high landscaping activity days in some datasets (observational).

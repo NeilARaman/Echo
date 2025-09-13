@@ -68,7 +68,7 @@ export default function EchoPage() {
     fetchCommunities()
   }, [])
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="container mx-auto px-4 py-8 pt-24">
       <div className="max-w-4xl mx-auto">
         {/* Header Section */}
         <div className="text-center mb-8">

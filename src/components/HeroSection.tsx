@@ -9,7 +9,7 @@ import GalaxyOrb from "@/components/GalaxyOrb";
 
 const HeroSection = () => {
   return (
-    <section className="pt-20 pb-0">
+    <section className="pt-5 pb-0">
       <div className="relative container max-w-7xl mx-auto min-h-[100vh] overflow-hidden">
         {/* Three.js Galaxy Orb Background */}
         <div className="absolute inset-0 w-full h-full" style={{ zIndex: 0 }}>
@@ -48,7 +48,7 @@ const HeroSection = () => {
         </div>
 
         {/* Call-to-action button */}
-        <div className="absolute bottom-10 left-1/2 transform -translate-x-1/2 z-50">
+        <div className="absolute bottom-24 left-1/2 transform -translate-x-1/2 z-40">
           <Button 
             className="group h-12 px-8 bg-primary text-primary-foreground border border-primary/20 rounded-sm font-medium text-sm tracking-wide uppercase hover:bg-primary/90 hover:border-primary/30 transition-all duration-200 ease-out shadow-sm hover:shadow-md"
             onClick={() => window.location.href = '/echo'}

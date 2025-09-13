@@ -15,6 +15,10 @@ from anthropic import Anthropic, NotFoundError
 import httpx  # required by anthropic client internals
 from secrets import token_urlsafe
 
+from threading import Thread
+from pathlib import Path
+
+
 # -----------------------------
 # Env & global init
 # -----------------------------
@@ -40,6 +44,9 @@ os.makedirs(DATA_DIR, exist_ok=True)
 
 EXPORT_DIR = os.getenv("EXPORT_DIR", "./exports")
 os.makedirs(EXPORT_DIR, exist_ok=True)
+
+COMMUNITY_ROOT = os.getenv("COMMUNITY_ROOT", "./data")  # where community_<timestamp> folders live
+
 
 # Handoff token TTL (seconds) — short-lived by default
 HANDOFF_TTL_SECONDS = int(os.getenv("HANDOFF_TTL_SECONDS", "600"))
@@ -940,6 +947,144 @@ def aggregate_audience(per_audience: Dict[str, Dict[str,Any]]) -> Dict[str,Any]:
         "top_questions": tally(questions),
     }
 
+def _ensure_dir(p: str):
+    Path(p).mkdir(parents=True, exist_ok=True)
+
+def _community_folder(community_id: str) -> str:
+    # defensive: only allow folder-ish tokens
+    safe = re.sub(r"[^A-Za-z0-9._\-]/?", "", community_id).strip()
+    folder = os.path.join(COMMUNITY_ROOT, safe)
+    _ensure_dir(folder)
+    return folder
+
+def _write_json(path: str, data: Dict[str, Any]):
+    _ensure_dir(os.path.dirname(path))
+    with open(path, "w", encoding="utf-8") as f:
+        json.dump(data, f, ensure_ascii=False, indent=2)
+
+def _run_full_analysis_and_write_rag(
+    *,
+    draft: str,
+    artifact_number: int,
+    community_id: str,
+    top_k: int = 8,
+    temperature: float = 0.3,
+    max_tokens: int = 900
+) -> str:
+    """Run the same pipeline as /analyze, but save to <community>/rag_{i}.json and return its path."""
+    # Retrieval
+    retrieval_query = f"Key claims and entities in this draft: {draft[:2000]}"
+    hits = retrieve(retrieval_query, top_k)
+
+    # Personas
+    audience_personas = generate_audience_personas(
+        draft, hits, n=5, temp=0.2, max_tokens=1200
+    )
+
+    # Editorial bots
+    per_bot = {}
+    for i, bot in enumerate(BOTS):
+        bot_id = f"bot{str(i+1).zfill(2)}"
+        try:
+            per_bot[bot_id] = call_bot({"id": bot_id, **bot}, draft, hits, temperature, max_tokens)
+        except Exception as e:
+            per_bot[bot_id] = {
+                "summary": "Bot failed to generate.",
+                "key_points": [],
+                "suggestions": [],
+                "risks": [],
+                "ratings": {"clarity": 5, "accuracy": 5, "engagement": 5, "novelty": 5, "risk": 5},
+                "headline_suggestions": [],
+                "citations": [],
+                "next_actions": ["Retry or check server logs."],
+                "_model": "n/a",
+                "_error": f"{type(e).__name__}: {e}"
+            }
+
+    # Audience bots
+    per_audience = {}
+    for a in audience_personas:
+        try:
+            per_audience[a["id"]] = call_audience_bot(a, draft, hits, temperature, max_tokens)
+        except Exception as e:
+            per_audience[a["id"]] = {
+                "persona_takeaway": "Audience bot failed to generate.",
+                "stance": "mixed",
+                "positives": [],
+                "concerns": [],
+                "questions_for_reporter": [],
+                "scores": {"trust":5,"relevance":5,"share_intent":5},
+                "likely_comment": "",
+                "suggestions_to_journalist": [],
+                "citations": [],
+                "_model": "n/a",
+                "_error": f"{type(e).__name__}: {e}"
+            }
+
+    editorial_rollup = aggregate_editorial(per_bot)
+    headline_pool = (per_bot.get(HEADLINE_BOT_ID, {}) or {}).get("headline_suggestions", [])[:12]
+    audience_rollup = aggregate_audience(per_audience)
+
+    # Build export payload (this is what your extractor expects)
+    export_payload = {
+        "meta": {
+            "timestamp_utc": datetime.utcnow().isoformat() + "Z",
+            "params": {"top_k": top_k, "temperature": temperature, "max_tokens": max_tokens},
+            "models": {"fallbacks": MODEL_FALLBACKS},
+        },
+        "input": {
+            "draft": draft,
+            "retrieval_query": retrieval_query
+        },
+        "retrieval": {
+            "query_used": retrieval_query,
+            "snippets": [
+                {
+                    "idx": i+1,
+                    "source": h["source"],
+                    "chunk_index": h["chunk_index"],
+                    "score": h["score"],
+                    "text": h["text"]
+                } for i, h in enumerate(hits)
+            ]
+        },
+        "editorial": {
+            "bots": [{"id": f"bot{str(i+1).zfill(2)}", "name": b["name"]} for i, b in enumerate(BOTS)],
+            "per_bot": per_bot,
+            "rollup": editorial_rollup,
+            "headline_pool": headline_pool
+        },
+        "audience": {
+            "personas": audience_personas,
+            "per_audience": per_audience,
+            "rollup": audience_rollup
+        }
+    }
+
+    # Write rag_i.json inside the community folder
+    folder = _community_folder(community_id)
+    rag_path = os.path.join(folder, f"rag_{int(artifact_number)}.json")
+    _write_json(rag_path, export_payload)
+
+    # OPTIONAL: also write a copy to /exports for archival
+    try:
+        save_run_json(export_payload, draft)
+    except Exception:
+        pass
+
+    # OPTIONAL: produce llmready_{i}.json using your extractor (if present)
+    try:
+        from echo_data_extractor import EchoDataExtractor
+        extractor = EchoDataExtractor()
+        echo_data = extractor.transform_to_echo_format(rag_path)
+        llmready_path = os.path.join(folder, f"llmready_{int(artifact_number)}.json")
+        _write_json(llmready_path, echo_data)
+    except Exception as e:
+        print(f"[extractor] skip/failed: {e}")
+
+    return rag_path
+
+
 # -----------------------------
 # Synthetic seed data (optional demo)
 # -----------------------------
@@ -1097,7 +1242,7 @@ def ingest():
     glob_pattern = body.get("glob_pattern", "data/docs/**/*.*")
     paths = glob.glob(glob_pattern, recursive=True)
     if not paths:
-        return jsonify({"ok": False, "msg": "No files matched.", " ingested_chunks": 0})
+        return jsonify({"ok": False, "msg": "No files matched.", "ingested_chunks": 0})
     return jsonify(_build_index_from_paths(paths))
 
 @app.post("/ingest/upload")
@@ -1314,8 +1459,54 @@ def analyze():
     response_payload["export_file"] = export_file_path
     response_payload["run_id"] = run_id
     response_payload["ok"] = True
+    artifact_number = body.get("artifact_number")
+    community_id = (body.get("communityId") or "").strip()
+    if artifact_number is not None and community_id:
+        try:
+            folder = _community_folder(community_id)
+            rag_path = os.path.join(folder, f"rag_{int(artifact_number)}.json")
+            _write_json(rag_path, export_payload)
+            response_payload["rag_file"] = rag_path
+        except Exception as e:
+            print(f"[rag write] failed: {e}")
 
     return jsonify(response_payload)
+
+@app.post("/analyze_async")
+def analyze_async():
+    """
+    Body: { draft: str, artifact_number: int, communityId: str, top_k?, temperature?, max_tokens? }
+    Returns immediately; analysis runs in a background thread that writes <community>/rag_{i}.json
+    """
+    body = request.get_json(silent=True) or {}
+    draft = (body.get("draft") or "").strip()
+    artifact_number = body.get("artifact_number")
+    community_id = (body.get("communityId") or "").strip()
+
+    if not draft:
+        return jsonify({"ok": False, "msg": "Missing 'draft'"}), 400
+    if artifact_number is None:
+        return jsonify({"ok": False, "msg": "Missing 'artifact_number'"}), 400
+    if not community_id:
+        return jsonify({"ok": False, "msg": "Missing 'communityId'"}), 400
+
+    try:
+        t = Thread(
+            target=_run_full_analysis_and_write_rag,
+            kwargs=dict(
+                draft=draft,
+                artifact_number=int(artifact_number),
+                community_id=community_id,
+                top_k=int(body.get("top_k", 8)),
+                temperature=float(body.get("temperature", 0.3)),
+                max_tokens=int(body.get("max_tokens", 900)),
+            ),
+            daemon=True,
+        )
+        t.start()
+        return jsonify({"ok": True, "started": True, "artifact_number": int(artifact_number), "communityId": community_id})
+    except Exception as e:
+        return jsonify({"ok": False, "msg": f"failed to start job: {e}"}), 500
 
 # -----------------------------
 # Handoff API

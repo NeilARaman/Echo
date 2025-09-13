@@ -1,8 +1,8 @@
-import os, io, glob, json, hashlib, re
+import os, io, glob, json, hashlib, re, time
 from typing import List, Dict, Any, Union, Tuple
 from datetime import datetime
 
-from flask import Flask, request, jsonify, render_template
+from flask import Flask, request, jsonify, render_template, make_response
 from flask_cors import CORS
 from dotenv import load_dotenv
 
@@ -13,6 +13,7 @@ from pypdf import PdfReader
 
 from anthropic import Anthropic, NotFoundError
 import httpx  # required by anthropic client internals
+from secrets import token_urlsafe
 
 # -----------------------------
 # Env & global init
@@ -39,6 +40,10 @@ os.makedirs(DATA_DIR, exist_ok=True)
 
 EXPORT_DIR = os.getenv("EXPORT_DIR", "./exports")
 os.makedirs(EXPORT_DIR, exist_ok=True)
+
+# Handoff token TTL (seconds) — short-lived by default
+HANDOFF_TTL_SECONDS = int(os.getenv("HANDOFF_TTL_SECONDS", "600"))
+HANDOFFS: Dict[str, Dict[str, Any]] = {}  # token -> {"draft":..., "communityId":..., "ts": epoch_s}
 
 anthropic = Anthropic(api_key=ANTHROPIC_API_KEY)
 embedder = SentenceTransformer(EMBED_MODEL)
@@ -210,9 +215,7 @@ def save_run_json(payload: Dict[str, Any], draft: str) -> str:
     fpath = os.path.join(EXPORT_DIR, fname)
     with open(fpath, "w", encoding="utf-8") as f:
         json.dump(payload, f, ensure_ascii=False, indent=2)
-    return os.path.abspath(fpath)  # <- make it absolute
-
-
+    return os.path.abspath(fpath)
 
 def _slugify(name: str) -> str:
     name = name.lower()
@@ -279,14 +282,6 @@ def _normalize(v: np.ndarray) -> np.ndarray:
 
 # ---------- JSON corpus helpers (NEW) ----------
 def _extract_texts_from_json_obj(obj: Any, filename: str) -> List[Tuple[str, str]]:
-    """
-    Normalize many JSON shapes into a list of (source_label, text).
-    Supports:
-      { "sources": [ {url, text|data|content}, ... ] }
-      { "documents" | "docs": [ ..., ... ] }
-      { "text" | "data" | "content": "..." }
-      [ "text...", {"url":"...", "text":"..."} , ... ]
-    """
     out: List[Tuple[str, str]] = []
 
     def _pick_text(d: Dict[str, Any]) -> str:
@@ -297,7 +292,6 @@ def _extract_texts_from_json_obj(obj: Any, filename: str) -> List[Tuple[str, str
         return ""
 
     if isinstance(obj, dict):
-        # primary pattern: {"sources":[{url, text}, ...]}
         if isinstance(obj.get("sources"), list):
             for i, it in enumerate(obj["sources"]):
                 if isinstance(it, dict):
@@ -306,7 +300,6 @@ def _extract_texts_from_json_obj(obj: Any, filename: str) -> List[Tuple[str, str
                     url = (it.get("url") or "").strip()
                     label = f"{filename}::{url}" if url else f"{filename}::source_{i+1}"
                     out.append((label, txt))
-        # alt arrays
         for key in ("documents", "docs"):
             if isinstance(obj.get(key), list):
                 for i, it in enumerate(obj[key]):
@@ -318,7 +311,6 @@ def _extract_texts_from_json_obj(obj: Any, filename: str) -> List[Tuple[str, str
                         out.append((label, txt))
                     elif isinstance(it, str) and it.strip():
                         out.append((f"{filename}::{key[:-1]}_{i+1}", it))
-        # single text field
         single = None
         for k in ("text", "data", "content", "body"):
             v = obj.get(k)
@@ -342,11 +334,6 @@ def _extract_texts_from_json_obj(obj: Any, filename: str) -> List[Tuple[str, str
     return out
 
 def _extract_texts_from_path(path: str) -> List[Tuple[str, str]]:
-    """
-    For a given file path, return normalized (source_label, text) pairs.
-    - .json => parse and split into many docs
-    - others => single doc using file content
-    """
     ext = os.path.splitext(path)[1].lower()
     if ext == ".json":
         try:
@@ -355,7 +342,6 @@ def _extract_texts_from_path(path: str) -> List[Tuple[str, str]]:
             items = _extract_texts_from_json_obj(obj, os.path.basename(path))
             return [(src, txt) for (src, txt) in items if (txt and txt.strip())]
         except Exception:
-            # If JSON is malformed, fall back to raw text ingestion
             raw = _read_text(path)
             return [(path, raw)] if raw.strip() else []
     else:
@@ -364,10 +350,6 @@ def _extract_texts_from_path(path: str) -> List[Tuple[str, str]]:
 
 # ---------- Index build ----------
 def _build_index_from_paths(paths: List[str]) -> Dict[str, Any]:
-    """
-    Ingest txt/md/pdf as before, and JSON files where each JSON may contain many 'documents'.
-    Each (source_label, text) is chunked and embedded separately.
-    """
     index = _load_faiss()
     new_meta = []
     add_vecs: List[np.ndarray] = []
@@ -375,7 +357,7 @@ def _build_index_from_paths(paths: List[str]) -> Dict[str, Any]:
     ingested_chunks = 0
 
     for p in paths:
-        docs = _extract_texts_from_path(p)  # list of (source_label, text)
+        docs = _extract_texts_from_path(p)
         if not docs:
             continue
         for src_label, text in docs:
@@ -424,7 +406,6 @@ def retrieve(query: str, k: int = 6) -> List[Dict[str, Any]]:
     index = _load_faiss()
     q = embedder.encode([query], convert_to_numpy=True)
     q = _normalize(q).astype("float32")
-    # Overfetch then hash-dedup to avoid repeated snippets
     D, I = index.search(q, min(k*3, len(meta)))
     hits = []
     for score, idx in zip(D[0].tolist(), I[0].tolist()):
@@ -456,22 +437,17 @@ def _norm_1_10(v: Union[int, float, None]) -> Union[int, None]:
     return int(round(f))
 
 def _maybe_scale_5_to_10(ratings: Dict[str, Any]) -> Dict[str, Any]:
-    # Collect only numeric values
     vals = [float(v) for v in ratings.values() if isinstance(v, (int, float))]
     if not vals:
         return ratings
-
-    # If everything is <= 5, assume a /5 scale and double; else clamp to /10
     def _scale_or_none(v):
         if isinstance(v, (int, float)):
             return _norm_1_10(v * 2.0)
         return None
-
     if max(vals) <= 5.0:
         return {k: _scale_or_none(ratings.get(k)) for k in ratings}
     else:
         return {k: _norm_1_10(ratings.get(k)) for k in ratings}
-
 
 def _coerce_suggestions(sugg: Any) -> List[Dict[str, Any]]:
     out = []
@@ -608,7 +584,6 @@ CONTEXT SNIPPETS:
     citations = [int(i) for i in _to_list(data.get("citations")) if str(i).isdigit()]
     next_actions = [str(x) for x in _to_list(data.get("next_actions"))]
 
-    # Only headline coach can return headlines
     if bot["id"] != HEADLINE_BOT_ID:
         headline_suggestions = []
 
@@ -628,7 +603,6 @@ CONTEXT SNIPPETS:
 # Persona JSON extraction (robust)
 # -----------------------------
 def _extract_personas_from_content(content: str) -> List[Dict[str,Any]]:
-    # 1) Try as JSON dict with 'personas'
     try:
         obj = json.loads(content)
         if isinstance(obj, dict) and isinstance(obj.get("personas"), list):
@@ -637,7 +611,6 @@ def _extract_personas_from_content(content: str) -> List[Dict[str,Any]]:
             return obj
     except Exception:
         pass
-    # 2) Try dict slice { ... }
     try:
         start = content.find("{"); end = content.rfind("}")
         if start != -1 and end != -1 and end > start:
@@ -648,7 +621,6 @@ def _extract_personas_from_content(content: str) -> List[Dict[str,Any]]:
                 return obj
     except Exception:
         pass
-    # 3) Try to extract the personas array explicitly
     m = re.search(r'"personas"\s*:\s*(\[[\s\S]*\])', content)
     if m:
         arr_txt = m.group(1)
@@ -658,7 +630,6 @@ def _extract_personas_from_content(content: str) -> List[Dict[str,Any]]:
                 return arr
         except Exception:
             pass
-    # 4) Try bracket slice of first [...] in content
     try:
         lb = content.find("["); rb = content.rfind("]")
         if lb != -1 and rb != -1 and rb > lb:
@@ -742,14 +713,7 @@ DELIVER IN THE AUDIENCE SCHEMA ONLY."""
 
 def generate_audience_personas(draft: str, hits: List[Dict[str,Any]], n: int = 5,
                                temp: float = 0.2, max_tokens: int = 1200) -> List[Dict[str,str]]:
-    """
-    Two-pass generation:
-      Pass 1: ask for EXACTLY n personas.
-      Pass 2: if fewer than n, ask for the remaining count with explicit 'exclude_names'.
-      Only if still fewer than n do we use static fallbacks for the remainder.
-    """
     chosen: List[Dict[str,str]] = []
-    # Pass 1
     p1 = _generate_personas_once(draft, hits, target_n=n, exclude_names=[], temp=temp, max_tokens=max_tokens)
     seen = set()
     for p in p1:
@@ -759,7 +723,6 @@ def generate_audience_personas(draft: str, hits: List[Dict[str,Any]], n: int = 5
         chosen.append(p)
         if len(chosen) == n:
             break
-    # Pass 2
     if len(chosen) < n:
         missing = n - len(chosen)
         exclude = [p["name"] for p in chosen]
@@ -771,7 +734,6 @@ def generate_audience_personas(draft: str, hits: List[Dict[str,Any]], n: int = 5
             chosen.append(p)
             if len(chosen) == n:
                 break
-    # Final safety net
     if len(chosen) < n:
         defaults = _fallback_personas(draft)
         for d in defaults:
@@ -1031,11 +993,80 @@ def write_seed_files():
     return written
 
 # -----------------------------
+# Handoff helpers
+# -----------------------------
+def _cleanup_handoffs():
+    """Remove expired tokens."""
+    now = time.time()
+    expired = [t for t, v in HANDOFFS.items() if now - v.get("ts", 0) > HANDOFF_TTL_SECONDS]
+    for t in expired:
+        HANDOFFS.pop(t, None)
+
+def _consume_token(token: str) -> Dict[str, Any]:
+    """Return payload if token valid & unexpired; pop it (one-time)."""
+    _cleanup_handoffs()
+    info = HANDOFFS.pop(token, None)
+    if not info:
+        return {}
+    if time.time() - info.get("ts", 0) > HANDOFF_TTL_SECONDS:
+        return {}
+    return info
+
+# -----------------------------
 # Routes: UI
 # -----------------------------
 @app.get("/")
 def index():
+    """
+    If ?token=... is present, prefill the draft <textarea id="draft"> and optionally autostart.
+    We inject a tiny inline <script> right before </body> so you don't need to change index.html.
+    """
+    token = request.args.get("token", "").strip()
+    autostart = request.args.get("autostart", "0").strip() in ("1", "true", "yes")
+
+    # Render the base template first
+    html = render_template("index.html")
+
+    if not token:
+        return html
+
+    info = _consume_token(token)
+    draft = (info.get("draft") or "").strip() if info else ""
+    if not draft:
+        # Token invalid/expired, just show page
+        return html
+
+    # Inject a script that fills the textarea and optionally clicks Analyze
+    injection = f"""
+<script>
+window.addEventListener('DOMContentLoaded', function(){{
+  try {{
+    var draft = {json.dumps(draft)};
+    var ta = document.getElementById('draft');
+    if (ta) ta.value = draft;
+    var autostart = {json.dumps(bool(autostart))};
+    if (autostart) {{
+      var btn = document.getElementById('analyzeBtn');
+      if (btn) btn.click();
+    }}
+  }} catch (e) {{}}
+}});
+</script>
+"""
+    # Insert before </body>
+    if "</body>" in html:
+        html = html.replace("</body>", injection + "\n</body>")
+    else:
+        html = html + injection
+    return make_response(html)
+
+@app.get("/")
+def index():
     return render_template("index.html")
+@app.get("/run/<run_id>")
+def run_view(run_id: str):
+    """Simple page that fetches /api/run/<run_id> and renders results (template must exist)."""
+    return render_template("run.html", run_id=run_id)
 
 @app.get("/sample_draft")
 def sample_draft():
@@ -1066,7 +1097,7 @@ def ingest():
     glob_pattern = body.get("glob_pattern", "data/docs/**/*.*")
     paths = glob.glob(glob_pattern, recursive=True)
     if not paths:
-        return jsonify({"ok": False, "msg": "No files matched.", "ingested_chunks": 0})
+        return jsonify({"ok": False, "msg": "No files matched.", " ingested_chunks": 0})
     return jsonify(_build_index_from_paths(paths))
 
 @app.post("/ingest/upload")
@@ -1094,7 +1125,7 @@ def ingest_upload():
             return jsonify({"ok": False, "msg": "No usable texts in JSON"}), 400
         for src_label, text in docs:
             chunks = _chunk(text)
-            if not chunks: 
+            if not chunks:
                 continue
             embs = embedder.encode(chunks, convert_to_numpy=True)
             embs = _normalize(embs).astype("float32")
@@ -1109,7 +1140,6 @@ def ingest_upload():
             total_chunks += len(chunks)
             ingested_docs += 1
     else:
-        # txt/md/pdf and other plain text
         text = ""
         try:
             text = content.decode("utf-8", errors="ignore")
@@ -1166,16 +1196,13 @@ def analyze():
     temperature = float(body.get("temperature", 0.3))  # precision
     max_tokens = int(body.get("max_tokens", 900))
 
-    # Retrieval
     retrieval_query = f"Key claims and entities in this draft: {draft[:2000]}"
     hits = retrieve(retrieval_query, top_k)
 
-    # 1) Generate 5 draft-specific audience personas (non-overlapping, 2-pass)
     audience_personas = generate_audience_personas(
         draft, hits, n=5, temp=0.2, max_tokens=1200
     )
 
-    # 2) Editorial bots (10 personas)
     per_bot = {}
     for i, bot in enumerate(BOTS):
         bot_id = f"bot{str(i+1).zfill(2)}"
@@ -1195,7 +1222,6 @@ def analyze():
                 "_error": f"{type(e).__name__}: {e}"
             }
 
-    # 3) Audience bots (5 generated personas)
     per_audience = {}
     for a in audience_personas:
         try:
@@ -1215,12 +1241,10 @@ def analyze():
                 "_error": f"{type(e).__name__}: {e}"
             }
 
-    # 4) Rollups
     editorial_rollup = aggregate_editorial(per_bot)
     headline_pool = (per_bot.get(HEADLINE_BOT_ID, {}) or {}).get("headline_suggestions", [])[:12]
     audience_rollup = aggregate_audience(per_audience)
 
-    # 5) Build the standard HTTP response (unchanged structure, plus export_file)
     response_payload = {
         "bots": [{"id": f"bot{str(i+1).zfill(2)}", "name": b["name"]} for i, b in enumerate(BOTS)],
         "audience_bots": [
@@ -1257,7 +1281,6 @@ def analyze():
         }
     }
 
-    # 6) Build the richer on-disk export (includes personas w/ system prompts & run meta)
     export_payload = {
         "meta": {
             "timestamp_utc": datetime.utcnow().isoformat() + "Z",
@@ -1268,24 +1291,61 @@ def analyze():
             "draft": draft,
             "retrieval_query": retrieval_query
         },
-        "retrieval": response_payload["retrieval"],  # reuse same structure
+        "retrieval": response_payload["retrieval"],
         "editorial": {
-            "bots": response_payload["bots"],        # id + name
-            "per_bot": per_bot,                      # full per-bot JSON
+            "bots": response_payload["bots"],
+            "per_bot": per_bot,
             "rollup": editorial_rollup,
             "headline_pool": headline_pool
         },
         "audience": {
-            "personas": audience_personas,           # includes each persona's system prompt
-            "per_audience": per_audience,            # full per-audience JSON
+            "personas": audience_personas,
+            "per_audience": per_audience,
             "rollup": audience_rollup
         }
     }
 
     export_file_path = save_run_json(export_payload, draft)
-    response_payload["export_file"] = export_file_path  # let the UI show where it's saved
+
+# NEW: derive a run_id from the export filename (without .json)
+    run_id = os.path.splitext(os.path.basename(export_file_path))[0]
+
+# include these in the response
+    response_payload["export_file"] = export_file_path
+    response_payload["run_id"] = run_id
+    response_payload["ok"] = True
 
     return jsonify(response_payload)
+
+# -----------------------------
+# Handoff API
+# -----------------------------
+@app.post("/handoff")
+def handoff():
+    """
+    Body: { draft: str, communityId?: str }
+    Returns: { ok: true, token: "..." }
+    """
+    body = request.get_json(silent=True) or {}
+    draft = (body.get("draft") or "").strip()
+    community_id = (body.get("communityId") or "").strip()
+    if not draft:
+        return jsonify({"ok": False, "msg": "Missing 'draft'"}), 400
+
+    _cleanup_handoffs()
+    tok = token_urlsafe(18)
+    HANDOFFS[tok] = {"draft": draft, "communityId": community_id, "ts": time.time()}
+    return jsonify({"ok": True, "token": tok, "ttl_seconds": HANDOFF_TTL_SECONDS})
+
+@app.get("/api/run/<run_id>")
+def api_run(run_id: str):
+    """Return the saved export JSON for a completed run."""
+    path = os.path.join(EXPORT_DIR, f"{run_id}.json")
+    if not os.path.exists(path):
+        return jsonify({"ok": False, "msg": "Run not found"}), 404
+    with open(path, "r", encoding="utf-8") as f:
+        data = json.load(f)
+    return jsonify({"ok": True, "run_id": run_id, "data": data})
 
 
 if __name__ == "__main__":

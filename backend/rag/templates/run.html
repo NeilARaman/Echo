@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Echo RAG – Run Viewer</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <style>
+    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; margin: 24px; color: #111; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .card { border: 1px solid #e5e7eb; border-radius: 12px; padding: 16px; background: #fff; }
+    h1 { font-size: 22px; margin: 0 0 8px; }
+    h2 { font-size: 18px; margin: 16px 0 8px; }
+    textarea { width: 100%; min-height: 220px; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
+    code, pre { background: #f8fafc; border-radius: 8px; padding: 10px; display: block; white-space: pre-wrap; }
+    .muted { color: #6b7280; }
+    .pill { display:inline-block; padding:2px 8px; border:1px solid #e5e7eb; border-radius:9999px; margin-right:6px; font-size:12px; }
+    a { color: #2563eb; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    ul { margin: 6px 0 0 18px; }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <h1>Echo RAG – Run <span id="runId" class="muted"></span></h1>
+    <div class="muted" style="margin-bottom:12px">
+      <a id="jsonLink" href="#" target="_blank">Open raw JSON</a>
+    </div>
+
+    <div class="grid">
+      <div class="card">
+        <h2>Draft</h2>
+        <textarea id="draft" readonly></textarea>
+      </div>
+
+      <div class="card">
+        <h2>Retrieval (top snippets)</h2>
+        <div id="snippets"></div>
+      </div>
+    </div>
+
+    <div class="grid" style="margin-top:16px">
+      <div class="card">
+        <h2>Editorial rollup</h2>
+        <div id="editorial"></div>
+      </div>
+      <div class="card">
+        <h2>Audience rollup</h2>
+        <div id="audience"></div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:16px">
+      <h2>Headline ideas</h2>
+      <ul id="headlines"></ul>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      const runId = "{{ run_id }}";
+      document.getElementById("runId").textContent = runId;
+      document.getElementById("jsonLink").href = "/api/run/" + encodeURIComponent(runId);
+
+      fetch("/api/run/" + encodeURIComponent(runId))
+        .then(r => r.json())
+        .then(({ ok, data }) => {
+          if (!ok) throw new Error("Run not found");
+
+          // Draft
+          document.getElementById("draft").value = (data?.input?.draft || "").trim();
+
+          // Retrieval
+          const sn = (data?.retrieval?.snippets || []).slice(0, 8);
+          const snDiv = document.getElementById("snippets");
+          if (!sn.length) {
+            snDiv.innerHTML = '<div class="muted">No snippets.</div>';
+          } else {
+            sn.forEach(s => {
+              const el = document.createElement("div");
+              el.style.marginBottom = "10px";
+              el.innerHTML = `
+                <div class="muted">[${s.idx}] ${s.source} (chunk ${s.chunk_index}) • score ${Number(s.score||0).toFixed(3)}</div>
+                <pre>${(s.text||"").replace(/[<>&]/g, m => ({'<':'&lt;','>':'&gt;','&':'&amp;'}[m]))}</pre>
+              `;
+              snDiv.appendChild(el);
+            });
+          }
+
+          // Editorial rollup
+          const ed = data?.editorial?.rollup || {};
+          const edDiv = document.getElementById("editorial");
+          const scores = ed.scores_avg || {};
+          const sugg = (ed.consensus_suggestions || []).slice(0, 8);
+          const risks = (ed.consensus_risks || []).slice(0, 8);
+          edDiv.innerHTML = `
+            <div>Scores avg:
+              ${Object.entries(scores).map(([k,v]) => `<span class="pill">${k}: ${v ?? '-'}</span>`).join(' ')}
+            </div>
+            <h3>Top suggestions</h3>
+            <ul>${sugg.map(s => `<li>${s.item} <span class="muted">(${s.count})</span></li>`).join('')}</ul>
+            <h3>Top risks</h3>
+            <ul>${risks.map(s => `<li>${s.item} <span class="muted">(${s.count})</span></li>`).join('')}</ul>
+          `;
+
+          // Audience rollup
+          const au = data?.audience?.rollup || {};
+          const auDiv = document.getElementById("audience");
+          const stance = au.stance_counts || {};
+          const concerns = (au.top_concerns || []).slice(0, 8);
+          const questions = (au.top_questions || []).slice(0, 8);
+          const avg = au.avg_scores || {};
+          auDiv.innerHTML = `
+            <div>Avg:
+              <span class="pill">trust: ${avg.trust ?? '-'}</span>
+              <span class="pill">relevance: ${avg.relevance ?? '-'}</span>
+              <span class="pill">share: ${avg.share_intent ?? '-'}</span>
+            </div>
+            <div style="margin-top:6px">Stance:
+              ${Object.entries(stance).map(([k,v]) => `<span class="pill">${k}: ${v}</span>`).join(' ')}
+            </div>
+            <h3>Top concerns</h3>
+            <ul>${concerns.map(s => `<li>${s.item} <span class="muted">(${s.count})</span></li>`).join('')}</ul>
+            <h3>Top questions</h3>
+            <ul>${questions.map(s => `<li>${s.item} <span class="muted">(${s.count})</span></li>`).join('')}</ul>
+          `;
+
+          // Headlines
+          const heads = (data?.editorial?.headline_pool || []).slice(0, 12);
+          document.getElementById("headlines").innerHTML =
+            heads.length ? heads.map(h => `<li>${h}</li>`).join('') : '<li class="muted">None.</li>';
+        })
+        .catch(err => {
+          alert("Failed to load run: " + err.message);
+        });
+    })();
+  </script>
+</body>
+</html>

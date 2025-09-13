@@ -9,58 +9,34 @@ import { Textarea } from "@/components/ui/textarea"
 import { Plus } from "lucide-react"
 import NetworkAnimation from "@/components/NetworkAnimation"
 
+type Community = { id: string; folderName: string; content: string }
+
+// Expose your Flask base URL via .env.local:
+// NEXT_PUBLIC_FLASK_BASE_URL=http://localhost:5000
+const FLASK_BASE =
+  process.env.NEXT_PUBLIC_FLASK_BASE_URL?.replace(/\/+$/, "") || "http://localhost:5000"
+
 export default function EchoPage() {
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [communityDescription, setCommunityDescription] = useState("")
   const [isLoading, setIsLoading] = useState(false)
-  const [communities, setCommunities] = useState<Array<{id: string, folderName: string, content: string}>>([])
+  const [scrapeStatus, setScrapeStatus] = useState<string | null>(null)
+
+  const [communities, setCommunities] = useState<Community[]>([])
   const [selectedCommunity, setSelectedCommunity] = useState<string | null>(null)
   const [loadingCommunities, setLoadingCommunities] = useState(true)
+
   const [draftText, setDraftText] = useState("")
   const [isSimulating, setIsSimulating] = useState(false)
   const [showAnimation, setShowAnimation] = useState(false)
 
-  const handleSaveCommunity = async () => {
-    if (!communityDescription.trim()) return
-
-    setIsLoading(true)
-    try {
-      const timestamp = new Date().toISOString().replace(/[:.]/g, '-')
-      const folderName = `community_${timestamp}`
-      const filename = `description.txt`
-
-      const response = await fetch('/api/save-community', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          folderName,
-          filename,
-          content: communityDescription
-        })
-      })
-
-      if (!response.ok) {
-        throw new Error('Failed to save community')
-      }
-
-      setCommunityDescription("")
-      setIsDialogOpen(false)
-      fetchCommunities() // Refresh the communities list
-    } catch (error) {
-      console.error('Error saving community:', error)
-    } finally {
-      setIsLoading(false)
-    }
-  }
-
+  // --- data fetch ---
   const fetchCommunities = async () => {
     try {
       const response = await fetch('/api/get-communities')
       if (response.ok) {
         const data = await response.json()
-        setCommunities(data.communities)
+        setCommunities(data.communities as Community[])
       }
     } catch (error) {
       console.error('Error fetching communities:', error)
@@ -69,47 +45,119 @@ export default function EchoPage() {
     }
   }
 
-  const handleSimulate = async () => {
-    if (!selectedCommunity || !draftText.trim()) return
-    
-    setIsSimulating(true)
+  useEffect(() => {
+    fetchCommunities()
+  }, [])
+
+  // --- scrape trigger (saves into specific community folder on server) ---
+  const triggerScrape = async (folderName: string, description: string) => {
+    setScrapeStatus("Scraping…")
     try {
-      const response = await fetch('/api/save-artifact', {
+      const res = await fetch('/api/scrape-community', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          communityId: selectedCommunity,
-          content: draftText
-        })
+          folderName,
+          communityDescription: description,
+          maxLinks: 10,
+        }),
       })
-      
-      if (!response.ok) {
-        throw new Error('Failed to save artifact')
+      const json = await res.json().catch(() => ({}))
+      if (!res.ok || json?.ok === false) {
+        setScrapeStatus(`Scrape failed: ${json?.error ?? `HTTP ${res.status}`}`)
+        return
       }
-      
-      const data = await response.json()
-      console.log('Artifact saved:', data)
-      
-      // Show animation after successful save
-      setShowAnimation(true)
-    } catch (error) {
-      console.error('Error saving artifact:', error)
-      setIsSimulating(false)
+      setScrapeStatus(`Scrape complete → ${json.outputPath ?? `(saved under ${folderName})`}`)
+    } catch (e: any) {
+      setScrapeStatus(`Scrape error: ${String(e)}`)
     }
   }
+
+  // --- save community then scrape ---
+  const handleSaveCommunity = async () => {
+    if (!communityDescription.trim()) return
+    setIsLoading(true)
+    setScrapeStatus(null)
+
+    try {
+      const timestamp = new Date().toISOString().replace(/[:.]/g, '-')
+      const folderName = `community_${timestamp}`
+      const filename = `description.txt`
+
+      const response = await fetch('/api/save-community', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ folderName, filename, content: communityDescription })
+      })
+
+      if (!response.ok) throw new Error('Failed to save community')
+
+      await triggerScrape(folderName, communityDescription)
+
+      setCommunityDescription("")
+      setIsDialogOpen(false)
+      fetchCommunities()
+    } catch (error) {
+      console.error('Error saving community:', error)
+      setScrapeStatus(String(error))
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  // --- simulate draft reception: save artifact, then secure handoff to Flask (no draft in URL) ---
+  // --- simulate draft reception: save artifact, call Next proxy -> Flask, then redirect to Flask run page ---
+const handleSimulate = async () => {
+  if (!selectedCommunity || !draftText.trim()) return;
+  setIsSimulating(true);
+  try {
+    // 1) (Optional) Persist the draft for your own records
+    const persist = await fetch("/api/save-artifact", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ communityId: selectedCommunity, content: draftText }),
+    });
+    if (!persist.ok) throw new Error("Failed to save artifact");
+
+    // 2) Visual feedback while we wait
+    setShowAnimation(true);
+
+    // 3) Ask Flask to analyze via the Next proxy (NO CORS in browser)
+    const res = await fetch("/api/flask-analyze", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        draft: draftText,
+        top_k: 8,
+        temperature: 0.3,
+        max_tokens: 900,
+      }),
+    });
+
+    const json = await res.json().catch(() => ({} as any));
+    if (!res.ok || json?.ok === false || !json?.run_id) {
+      throw new Error(json?.error || `Analyze failed: HTTP ${res.status}`);
+    }
+
+    // 4) Redirect to Flask's run viewer page
+    const FLASK_BASE =
+      process.env.NEXT_PUBLIC_FLASK_BASE_URL?.replace(/\/+$/, "") || "http://127.0.0.1:5000";
+    window.location.assign(`${FLASK_BASE}/run/${encodeURIComponent(json.run_id)}`);
+  } catch (error) {
+    console.error("Error during simulation:", error);
+    setIsSimulating(false);
+    setShowAnimation(false);
+    alert(String(error));
+  }
+};
+
 
   const handleAnimationComplete = () => {
     setShowAnimation(false)
     setIsSimulating(false)
-    // Clear the draft text after animation completes
     setDraftText("")
   }
 
-  useEffect(() => {
-    fetchCommunities()
-  }, [])
   return (
     <div className="container mx-auto px-4 py-8 pt-24">
       <div className="max-w-4xl mx-auto">
@@ -151,17 +199,21 @@ export default function EchoPage() {
                     key={community.id}
                     onClick={() => setSelectedCommunity(selectedCommunity === community.id ? null : community.id)}
                     className={`p-4 border rounded-lg cursor-pointer transition-colors hover:bg-muted/50 ${
-                      selectedCommunity === community.id 
-                        ? 'border-primary bg-primary/5 ring-1 ring-primary' 
+                      selectedCommunity === community.id
+                        ? 'border-primary bg-primary/5 ring-1 ring-primary'
                         : 'border-border'
                     }`}
                   >
                     <p className="text-sm">{community.content}</p>
+                    <p className="text-xs text-muted-foreground mt-1">Folder: {community.folderName}</p>
                   </div>
                 ))}
               </div>
             )}
-            
+
+            {isLoading && <div className="text-sm text-muted-foreground mb-2">Saving…</div>}
+            {scrapeStatus && <div className="text-sm">{scrapeStatus}</div>}
+
             <div className="flex justify-center">
               <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
                 <DialogTrigger asChild>
@@ -185,17 +237,18 @@ export default function EchoPage() {
                     />
                   </div>
                   <DialogFooter>
-                    <Button 
-                      variant="outline" 
+                    <Button
+                      variant="outline"
                       onClick={() => setIsDialogOpen(false)}
+                      disabled={isLoading}
                     >
                       Cancel
                     </Button>
-                    <Button 
+                    <Button
                       onClick={handleSaveCommunity}
                       disabled={!communityDescription.trim() || isLoading}
                     >
-                      {isLoading ? "Saving..." : "Save Community"}
+                      {isLoading ? "Saving..." : "Save & Scrape"}
                     </Button>
                   </DialogFooter>
                 </DialogContent>
@@ -270,5 +323,5 @@ export default function EchoPage() {
         </Card>
       </div>
     </div>
-  );
+  )
 }

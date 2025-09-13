@@ -60,22 +60,6 @@ const Navbar = () => {
             </Button>
           </div>
           
-          {/* Desktop CTA Buttons */}
-          <div className="hidden items-center gap-4 lg:flex">
-            <Button 
-              variant="ghost"
-              onClick={() => window.location.href = '/echo'}
-              className="cursor-pointer font-medium text-sm hover:text-primary transition-colors"
-            >
-              Sign in
-            </Button>
-            <Button 
-              className="cursor-pointer bg-primary text-primary-foreground border border-primary/20 rounded-sm font-medium text-sm tracking-wide hover:bg-primary/90 hover:border-primary/30 transition-all duration-200 px-6"
-              onClick={() => window.location.href = '/echo'}
-            >
-              Get Started
-            </Button>
-          </div>
           
           {/* Mobile Menu Button */}
           <div className="flex items-center gap-4 lg:hidden">
@@ -122,22 +106,6 @@ const Navbar = () => {
               >
                 <span className="flex-1">FAQ</span>
               </button>
-            </div>
-            <div className="mx-[2rem] mt-auto flex flex-col gap-4 py-12">
-              <Button 
-                variant="ghost"
-                onClick={() => window.location.href = '/echo'}
-                className="cursor-pointer font-medium hover:text-primary transition-colors"
-              >
-                Existing Journalist? <b>Sign in</b>
-              </Button>
-              <Button 
-                className="relative cursor-pointer bg-primary text-primary-foreground border border-primary/20 rounded-sm font-medium tracking-wide hover:bg-primary/90 hover:border-primary/30 transition-all duration-200" 
-                size="lg"
-                onClick={() => window.location.href = '/echo'}
-              >
-                Start Fact-Checking
-              </Button>
             </div>
           </div>
         )}

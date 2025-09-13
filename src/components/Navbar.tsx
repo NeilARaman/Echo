@@ -23,7 +23,6 @@ const scrollToSection = (sectionId: string) => {
 const Navbar = () => {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
-  const isPlatformPage = pathname === '/platform';
   
   return (
     <section className="fixed inset-x-0 top-0 z-20 bg-stone-100">
@@ -38,97 +37,44 @@ const Navbar = () => {
           
           {/* Desktop Navigation */}
           <div className="hidden lg:flex items-center gap-1">
-            {isPlatformPage ? (
-              <>
-                <Button 
-                  variant="ghost" 
-                  className="text-sm font-medium cursor-pointer"
-                >
-                  Dashboard
-                </Button>
-                <Button 
-                  variant="ghost" 
-                  className="text-sm font-medium cursor-pointer"
-                >
-                  Analytics
-                </Button>
-                <Button 
-                  variant="ghost" 
-                  className="text-sm font-medium cursor-pointer"
-                >
-                  Archive
-                </Button>
-              </>
-            ) : (
-              <>
-                <Button 
-                  variant="ghost" 
-                  onClick={() => scrollToSection('societies')}
-                  className="text-sm font-medium cursor-pointer"
-                >
-                  AI Societies
-                </Button>
-                <Button 
-                  variant="ghost" 
-                  onClick={() => scrollToSection('fact-first')}
-                  className="text-sm font-medium cursor-pointer"
-                >
-                  The Platform
-                </Button>
-                <Button 
-                  variant="ghost" 
-                  onClick={() => scrollToSection('faq')}
-                  className="text-sm font-medium cursor-pointer"
-                >
-                  FAQ
-                </Button>
-              </>
-            )}
+            <Button 
+              variant="ghost" 
+              onClick={() => scrollToSection('societies')}
+              className="text-sm font-medium cursor-pointer"
+            >
+              AI Societies
+            </Button>
+            <Button 
+              variant="ghost" 
+              onClick={() => scrollToSection('fact-first')}
+              className="text-sm font-medium cursor-pointer"
+            >
+              The Platform
+            </Button>
+            <Button 
+              variant="ghost" 
+              onClick={() => scrollToSection('faq')}
+              className="text-sm font-medium cursor-pointer"
+            >
+              FAQ
+            </Button>
           </div>
           
           {/* Desktop CTA Buttons */}
           <div className="hidden items-center gap-4 lg:flex">
-            {isPlatformPage ? (
-              <>
-                <Button 
-                  variant="outline"
-                  size="sm"
-                  className="cursor-pointer"
-                  style={{ 
-                    borderColor: 'var(--color-accent-blue)',
-                    color: 'var(--color-accent-blue)'
-                  }}
-                >
-                  Export Report
-                </Button>
-                <Button 
-                  size="sm"
-                  className="rounded-full cursor-pointer px-6"
-                  style={{ 
-                    backgroundColor: 'var(--color-primary-black)',
-                    color: 'var(--color-primary-white)'
-                  }}
-                >
-                  New Article
-                </Button>
-              </>
-            ) : (
-              <>
-                <Button 
-                  variant="ghost"
-                  onClick={() => window.location.href = '/platform'}
-                  className="cursor-pointer"
-                >
-                  Sign in
-                </Button>
-                <Button 
-                  className="rounded-full cursor-pointer"
-                  onClick={() => window.location.href = '/platform'}
-                >
-                  Get Started
-                </Button>
-              </>
-            )}
+            <Button 
+              variant="ghost"
+              onClick={() => window.location.href = '/echo'}
+              className="cursor-pointer"
+            >
+              Sign in
+            </Button>
+            <Button 
+              className="rounded-full cursor-pointer"
+              onClick={() => window.location.href = '/echo'}
+            >
+              Get Started
+            </Button>
           </div>
           
           {/* Mobile Menu Button */}
@@ -180,7 +126,7 @@ const Navbar = () => {
             <div className="mx-[2rem] mt-auto flex flex-col gap-4 py-12">
               <Button 
                 variant="ghost"
-                onClick={() => window.location.href = '/platform'}
+                onClick={() => window.location.href = '/echo'}
                 className="cursor-pointer"
               >
                 Existing Journalist? <b>Sign in</b>
@@ -188,7 +134,7 @@ const Navbar = () => {
               <Button 
                 className="relative cursor-pointer" 
                 size="lg"
-                onClick={() => window.location.href = '/platform'}
+                onClick={() => window.location.href = '/echo'}
               >
                 Start Fact-Checking
               </Button>

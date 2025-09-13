@@ -7,6 +7,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Plus } from "lucide-react"
+import NetworkAnimation from "@/components/NetworkAnimation"
 
 export default function EchoPage() {
   const [isDialogOpen, setIsDialogOpen] = useState(false)
@@ -17,6 +18,7 @@ export default function EchoPage() {
   const [loadingCommunities, setLoadingCommunities] = useState(true)
   const [draftText, setDraftText] = useState("")
   const [isSimulating, setIsSimulating] = useState(false)
+  const [showAnimation, setShowAnimation] = useState(false)
 
   const handleSaveCommunity = async () => {
     if (!communityDescription.trim()) return
@@ -90,13 +92,19 @@ export default function EchoPage() {
       const data = await response.json()
       console.log('Artifact saved:', data)
       
-      // Clear the draft text after successful save
-      setDraftText("")
+      // Show animation after successful save
+      setShowAnimation(true)
     } catch (error) {
       console.error('Error saving artifact:', error)
-    } finally {
       setIsSimulating(false)
     }
+  }
+
+  const handleAnimationComplete = () => {
+    setShowAnimation(false)
+    setIsSimulating(false)
+    // Clear the draft text after animation completes
+    setDraftText("")
   }
 
   useEffect(() => {
@@ -205,7 +213,9 @@ export default function EchoPage() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            {!selectedCommunity ? (
+            {showAnimation ? (
+              <NetworkAnimation onComplete={handleAnimationComplete} />
+            ) : !selectedCommunity ? (
               <div className="flex flex-col items-center justify-center py-8 text-center">
                 <div className="mb-4 p-3 rounded-full bg-muted">
                   <div className="h-6 w-6 text-muted-foreground">📝</div>
@@ -249,7 +259,7 @@ export default function EchoPage() {
                     Enter draft content to simulate reception
                   </p>
                 )}
-                {isSimulating && (
+                {isSimulating && !showAnimation && (
                   <p className="text-xs text-muted-foreground text-center">
                     Saving your artifact...
                   </p>

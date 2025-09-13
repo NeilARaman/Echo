@@ -1,31 +1,49 @@
 import { NextResponse } from 'next/server'
-import { readdir, readFile } from 'fs/promises'
+import { readdir, readFile, stat } from 'fs/promises'
 import { join } from 'path'
 
 export async function GET() {
   try {
-    const communitiesPath = join(process.cwd(), 'backend', 'data', 'communities')
+    const dataPath = join(process.cwd(), 'backend', 'data')
     
-    const files = await readdir(communitiesPath)
-    const txtFiles = files.filter(file => file.endsWith('.txt'))
+    const items = await readdir(dataPath)
     
     const communities = await Promise.all(
-      txtFiles.map(async (filename) => {
-        const filePath = join(communitiesPath, filename)
-        const content = await readFile(filePath, 'utf8')
-        return {
-          id: filename.replace('.txt', ''),
-          filename,
-          content: content.trim()
+      items.map(async (item) => {
+        try {
+          const itemPath = join(dataPath, item)
+          const itemStat = await stat(itemPath)
+          
+          // Check if it's a directory and starts with expected pattern
+          if (itemStat.isDirectory()) {
+            const descriptionPath = join(itemPath, 'description.txt')
+            try {
+              const content = await readFile(descriptionPath, 'utf8')
+              return {
+                id: item,
+                folderName: item,
+                content: content.trim()
+              }
+            } catch (error) {
+              // description.txt doesn't exist in this folder, skip it
+              return null
+            }
+          }
+          return null
+        } catch (error) {
+          return null
         }
       })
     )
     
-    return NextResponse.json({ communities })
+    // Filter out null values
+    const validCommunities = communities.filter(community => community !== null)
+    
+    return NextResponse.json({ communities: validCommunities })
   } catch (error) {
-    console.error('Error reading community files:', error)
+    console.error('Error reading community folders:', error)
     return NextResponse.json(
-      { error: 'Failed to read community files' },
+      { error: 'Failed to read community folders' },
       { status: 500 }
     )
   }

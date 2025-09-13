@@ -7,6 +7,8 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Plus } from "lucide-react"
+import NetworkAnimation from "@/components/NetworkAnimation"
+import ResultDisplay from "@/components/ResultDisplay"
 
 export default function EchoPage() {
   const [isDialogOpen, setIsDialogOpen] = useState(false)
@@ -17,6 +19,11 @@ export default function EchoPage() {
   const [loadingCommunities, setLoadingCommunities] = useState(true)
   const [draftText, setDraftText] = useState("")
   const [isSimulating, setIsSimulating] = useState(false)
+  const [showAnimation, setShowAnimation] = useState(false)
+  const [showResults, setShowResults] = useState(false)
+  const [resultData, setResultData] = useState<any>(null)
+  const [currentArtifactNumber, setCurrentArtifactNumber] = useState(null)
+  const [loadingResults, setLoadingResults] = useState(false)
 
   const handleSaveCommunity = async () => {
     if (!communityDescription.trim()) return
@@ -90,12 +97,100 @@ export default function EchoPage() {
       const data = await response.json()
       console.log('Artifact saved:', data)
       
-      // Clear the draft text after successful save
-      setDraftText("")
+      // Store artifact number for later response fetching
+      setCurrentArtifactNumber(data.artifactNumber)
+      
+      // Show animation after successful save
+      setShowAnimation(true)
     } catch (error) {
       console.error('Error saving artifact:', error)
-    } finally {
       setIsSimulating(false)
+    }
+  }
+
+  const handleAnimationComplete = async () => {
+    setShowAnimation(false)
+    setLoadingResults(true)
+    
+    try {
+      // Try to fetch the response file
+      const response = await fetch(`/api/get-response?communityId=${selectedCommunity}&artifactNumber=${currentArtifactNumber}`)
+      const data = await response.json()
+      
+      if (data.success && data.found && data.data) {
+        // Response file exists, use the actual data
+        setResultData(data.data)
+        setShowResults(true)
+      } else {
+        // Response file doesn't exist, show template with message
+        setResultData({
+          ...templateResultData,
+          _isTemplate: true,
+          _message: data.message || 'Analysis is still processing...'
+        })
+        setShowResults(true)
+      }
+    } catch (error) {
+      console.error('Error fetching response:', error)
+      // Fallback to template data
+      setResultData({
+        ...templateResultData,
+        _isTemplate: true,
+        _message: 'Unable to load analysis results. Please try again later.'
+      })
+      setShowResults(true)
+    } finally {
+      setLoadingResults(false)
+      setIsSimulating(false)
+    }
+  }
+
+  const handleNewTest = () => {
+    setShowResults(false)
+    setDraftText("")
+    setSelectedCommunity(null)
+    setResultData(null)
+    setCurrentArtifactNumber(null)
+  }
+
+  // Template data for result display
+  const templateResultData = {
+    executive_summary: {
+      overall_readiness_score: "6.36/10",
+      key_findings: [
+        "The article provides a nuanced, data-driven analysis of millennial political perspectives and policy preferences, highlighting their pragmatic, evidence-based approach to local governance.",
+        "There is a need to address potential overgeneralization of millennial political views and ensure policy interventions accommodate the internal diversity within this generation.",
+        "The article demonstrates significant potential for data-driven, equity-focused policy development that can directly improve residents' lived experiences."
+      ],
+      top_priority: "Mitigate the risk of overgeneralizing millennial political perspectives by incorporating more explicit caveats about demographic variations and designing flexible policy approaches."
+    },
+    key_insights: {
+      most_common_suggestions: "The dominant themes in the consensus suggestions are around incorporating more quantitative data, designing specific and measurable policy interventions, and developing flexible, equity-driven frameworks that address intersectional challenges.",
+      quickest_wins: [
+        "Include more quantitative data about millennial voting patterns and political engagement",
+        "Develop h2/h3 outline focusing on: policy pragmatism, local innovation, equity-driven solutions"
+      ],
+      primary_risks: {
+        summary: "The primary risks identified are around the potential for overgeneralizing millennial political perspectives and underestimating the internal diversity within this generation's political views.",
+        top_risks: [
+          {
+            risk: "Overgeneralizing millennial political perspectives",
+            severity: 7,
+            mitigation: "Use nuanced demographic research; avoid blanket statements"
+          },
+          {
+            risk: "Overestimating millennial voting bloc homogeneity",
+            severity: 7,
+            mitigation: "Design flexible policy approaches accommodating diverse perspectives"
+          }
+        ]
+      },
+      focus_area: "Improving the 'risk' category score by addressing potential overgeneralization and ensuring policy interventions accommodate diverse millennial perspectives.",
+      agent_perspectives: {
+        highest_rated: "The 'Fact Checker' agent has the highest average score of 7.6, likely due to strong performance in clarity, accuracy, and engagement.",
+        lowest_rated: "The 'Copy & Clarity Editor' and 'SEO & Discoverability' agents have the lowest average score of 7.2, likely due to relatively lower scores in novelty and risk."
+      },
+      predicted_discussion: "The audience discussion indicates broad support for the article's pragmatic, data-driven approach to policy development, particularly in areas like climate resilience, housing, and civic technology, while raising concerns about implementation complexity and resource constraints."
     }
   }
 
@@ -205,7 +300,21 @@ export default function EchoPage() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            {!selectedCommunity ? (
+            {loadingResults ? (
+              <div className="flex flex-col items-center justify-center py-12">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mb-4"></div>
+                <p className="text-sm text-muted-foreground">Loading analysis results...</p>
+              </div>
+            ) : showResults && resultData ? (
+              <ResultDisplay 
+                data={resultData} 
+                onNewTest={handleNewTest}
+                isTemplate={resultData._isTemplate}
+                message={resultData._message}
+              />
+            ) : showAnimation ? (
+              <NetworkAnimation onComplete={handleAnimationComplete} />
+            ) : !selectedCommunity ? (
               <div className="flex flex-col items-center justify-center py-8 text-center">
                 <div className="mb-4 p-3 rounded-full bg-muted">
                   <div className="h-6 w-6 text-muted-foreground">📝</div>
@@ -249,7 +358,7 @@ export default function EchoPage() {
                     Enter draft content to simulate reception
                   </p>
                 )}
-                {isSimulating && (
+                {isSimulating && !showAnimation && (
                   <p className="text-xs text-muted-foreground text-center">
                     Saving your artifact...
                   </p>

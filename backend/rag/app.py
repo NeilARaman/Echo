@@ -45,7 +45,13 @@ os.makedirs(DATA_DIR, exist_ok=True)
 EXPORT_DIR = os.getenv("EXPORT_DIR", "./exports")
 os.makedirs(EXPORT_DIR, exist_ok=True)
 
-COMMUNITY_ROOT = os.getenv("COMMUNITY_ROOT", "./data")  # where community_<timestamp> folders live
+COMMUNITY_ROOT = os.getenv("COMMUNITY_ROOT", "./data")
+os.makedirs(COMMUNITY_ROOT, exist_ok=True)
+
+def _community_folder(community_id: str) -> str:
+    path = os.path.join(COMMUNITY_ROOT, community_id)
+    os.makedirs(path, exist_ok=True)
+    return path
 
 
 # Handoff token TTL (seconds) — short-lived by default
@@ -1450,6 +1456,13 @@ def analyze():
         }
     }
 
+    artifact_number = int(body.get("artifact_number") or body.get("artifact") or 1)
+    community_id = (body.get("communityId") or "default").strip()
+    folder = _community_folder(community_id)
+    rag_path = os.path.join(folder, f"rag_{artifact_number}.json")
+    with open(rag_path, "w", encoding="utf-8") as f:
+        json.dump(export_payload, f, ensure_ascii=False, indent=2)
+
     export_file_path = save_run_json(export_payload, draft)
 
 # NEW: derive a run_id from the export filename (without .json)
@@ -1457,6 +1470,10 @@ def analyze():
 
 # include these in the response
     response_payload["export_file"] = export_file_path
+    response_payload["rag_file"] = rag_path
+    response_payload["community_id"] = community_id
+    response_payload["artifact_number"] = artifact_number
+
     response_payload["run_id"] = run_id
     response_payload["ok"] = True
     artifact_number = body.get("artifact_number")

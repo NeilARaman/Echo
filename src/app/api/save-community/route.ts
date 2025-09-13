@@ -1,23 +1,25 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { writeFile } from 'fs/promises'
 import { join } from 'path'
+import { mkdir, writeFile } from 'fs/promises'
 
 export async function POST(request: NextRequest) {
   try {
-    const { filename, content } = await request.json()
-    
-    if (!filename || !content) {
+    const { folderName, filename, content } = await request.json()
+
+    if (!folderName || !filename || !content) {
       return NextResponse.json(
-        { error: 'Filename and content are required' },
+        { error: 'Folder name, filename, and content are required' },
         { status: 400 }
       )
     }
-    
-    const filePath = join(process.cwd(), 'backend', 'data', 'communities', filename)
-    
+
+    const folderPath = join(process.cwd(), 'backend', 'data', folderName)
+    await mkdir(folderPath, { recursive: true })
+
+    const filePath = join(folderPath, filename)
     await writeFile(filePath, content, 'utf8')
-    
-    return NextResponse.json({ success: true, filename })
+
+    return NextResponse.json({ success: true, folderName, filename })
   } catch (error) {
     console.error('Error saving community file:', error)
     return NextResponse.json(

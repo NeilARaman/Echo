@@ -19,27 +19,29 @@ export default function EchoPage() {
 
   const handleSaveCommunity = async () => {
     if (!communityDescription.trim()) return
-    
+
     setIsLoading(true)
     try {
       const timestamp = new Date().toISOString().replace(/[:.]/g, '-')
-      const filename = `community_${timestamp}.txt`
-      
+      const folderName = `community_${timestamp}`
+      const filename = `description.txt`
+
       const response = await fetch('/api/save-community', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
+          folderName,
           filename,
           content: communityDescription
         })
       })
-      
+
       if (!response.ok) {
         throw new Error('Failed to save community')
       }
-      
+
       setCommunityDescription("")
       setIsDialogOpen(false)
       fetchCommunities() // Refresh the communities list

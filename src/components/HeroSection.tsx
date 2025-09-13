@@ -50,11 +50,11 @@ const HeroSection = () => {
         {/* Call-to-action button */}
         <div className="absolute bottom-10 left-1/2 transform -translate-x-1/2 z-50">
           <Button 
-            className="group h-12 px-8 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white border-0 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 ease-out transform hover:scale-105 active:scale-95"
+            className="group h-12 px-8 bg-primary text-primary-foreground border border-primary/20 rounded-sm font-medium text-sm tracking-wide uppercase hover:bg-primary/90 hover:border-primary/30 transition-all duration-200 ease-out shadow-sm hover:shadow-md"
             onClick={() => window.location.href = '/echo'}
           >
             Hear your Echo now
-            <ArrowRight className="ml-2 size-4 transition-transform group-hover:translate-x-1" />
+            <ArrowRight className="ml-3 size-4 transition-transform group-hover:translate-x-1" />
           </Button>
         </div>
       </div>

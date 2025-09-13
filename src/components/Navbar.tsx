@@ -65,12 +65,12 @@ const Navbar = () => {
             <Button 
               variant="ghost"
               onClick={() => window.location.href = '/echo'}
-              className="cursor-pointer"
+              className="cursor-pointer font-medium text-sm hover:text-primary transition-colors"
             >
               Sign in
             </Button>
             <Button 
-              className="rounded-full cursor-pointer"
+              className="cursor-pointer bg-primary text-primary-foreground border border-primary/20 rounded-sm font-medium text-sm tracking-wide hover:bg-primary/90 hover:border-primary/30 transition-all duration-200 px-6"
               onClick={() => window.location.href = '/echo'}
             >
               Get Started
@@ -127,12 +127,12 @@ const Navbar = () => {
               <Button 
                 variant="ghost"
                 onClick={() => window.location.href = '/echo'}
-                className="cursor-pointer"
+                className="cursor-pointer font-medium hover:text-primary transition-colors"
               >
                 Existing Journalist? <b>Sign in</b>
               </Button>
               <Button 
-                className="relative cursor-pointer" 
+                className="relative cursor-pointer bg-primary text-primary-foreground border border-primary/20 rounded-sm font-medium tracking-wide hover:bg-primary/90 hover:border-primary/30 transition-all duration-200" 
                 size="lg"
                 onClick={() => window.location.href = '/echo'}
               >

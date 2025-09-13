@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
+import { Textarea } from "@/components/ui/textarea"
 import { Plus } from "lucide-react"
 
 export default function EchoPage() {
@@ -14,6 +15,7 @@ export default function EchoPage() {
   const [communities, setCommunities] = useState<Array<{id: string, filename: string, content: string}>>([])
   const [selectedCommunity, setSelectedCommunity] = useState<string | null>(null)
   const [loadingCommunities, setLoadingCommunities] = useState(true)
+  const [draftText, setDraftText] = useState("")
 
   const handleSaveCommunity = async () => {
     if (!communityDescription.trim()) return
@@ -168,21 +170,51 @@ export default function EchoPage() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="flex flex-col items-center justify-center py-8 text-center">
-              <div className="mb-4 p-3 rounded-full bg-muted">
-                <div className="h-6 w-6 text-muted-foreground">📝</div>
+            {!selectedCommunity ? (
+              <div className="flex flex-col items-center justify-center py-8 text-center">
+                <div className="mb-4 p-3 rounded-full bg-muted">
+                  <div className="h-6 w-6 text-muted-foreground">📝</div>
+                </div>
+                <h3 className="text-lg font-medium mb-2">Ready to test your content?</h3>
+                <p className="text-muted-foreground mb-6 max-w-sm">
+                  Select a community above to begin testing your draft content
+                </p>
+                <Button variant="outline" disabled>
+                  Test Draft Article
+                </Button>
+                <p className="text-xs text-muted-foreground mt-2">
+                  Select a community first
+                </p>
               </div>
-              <h3 className="text-lg font-medium mb-2">Ready to test your content?</h3>
-              <p className="text-muted-foreground mb-6 max-w-sm">
-                Upload a draft article and see how it will be received by your communities
-              </p>
-              <Button variant="outline" disabled>
-                Test Draft Article
-              </Button>
-              <p className="text-xs text-muted-foreground mt-2">
-                Add at least one community first
-              </p>
-            </div>
+            ) : (
+              <div className="space-y-6">
+                <div>
+                  <label className="text-sm font-medium mb-2 block">
+                    Draft Article Content
+                  </label>
+                  <Textarea
+                    placeholder="Paste or type your draft article content here..."
+                    value={draftText}
+                    onChange={(e) => setDraftText(e.target.value)}
+                    rows={8}
+                    className="min-h-[200px]"
+                  />
+                </div>
+                <div className="flex justify-center">
+                  <Button
+                    disabled={!draftText.trim()}
+                    className="px-8"
+                  >
+                    Simulate Reception
+                  </Button>
+                </div>
+                {!draftText.trim() && (
+                  <p className="text-xs text-muted-foreground text-center">
+                    Enter draft content to simulate reception
+                  </p>
+                )}
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>

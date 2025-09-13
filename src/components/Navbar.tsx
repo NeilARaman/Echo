@@ -23,6 +23,7 @@ const scrollToSection = (sectionId: string) => {
 const Navbar = () => {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
+  const isEchoPage = pathname === '/echo';
   
   return (
     <section className="fixed inset-x-0 top-0 z-50 bg-stone-100 border-b border-stone-200/60 backdrop-blur-sm">
@@ -36,47 +37,51 @@ const Navbar = () => {
           </a>
           
           {/* Desktop Navigation */}
-          <div className="hidden lg:flex items-center gap-1">
-            <Button 
-              variant="ghost" 
-              onClick={() => scrollToSection('societies')}
-              className="text-sm font-medium cursor-pointer"
-            >
-              AI Societies
-            </Button>
-            <Button 
-              variant="ghost" 
-              onClick={() => scrollToSection('fact-first')}
-              className="text-sm font-medium cursor-pointer"
-            >
-              The Platform
-            </Button>
-            <Button 
-              variant="ghost" 
-              onClick={() => scrollToSection('faq')}
-              className="text-sm font-medium cursor-pointer"
-            >
-              FAQ
-            </Button>
-          </div>
+          {!isEchoPage && (
+            <div className="hidden lg:flex items-center gap-1">
+              <Button 
+                variant="ghost" 
+                onClick={() => scrollToSection('societies')}
+                className="text-sm font-medium cursor-pointer"
+              >
+                AI Societies
+              </Button>
+              <Button 
+                variant="ghost" 
+                onClick={() => scrollToSection('fact-first')}
+                className="text-sm font-medium cursor-pointer"
+              >
+                The Platform
+              </Button>
+              <Button 
+                variant="ghost" 
+                onClick={() => scrollToSection('faq')}
+                className="text-sm font-medium cursor-pointer"
+              >
+                FAQ
+              </Button>
+            </div>
+          )}
           
           
           {/* Mobile Menu Button */}
-          <div className="flex items-center gap-4 lg:hidden">
-            <Button
-              variant="outline"
-              size="icon"
-              aria-label="Main Menu"
-              onClick={() => setOpen(!open)}
-            >
-              {!open && <Menu className="size-4" />}
-              {open && <X className="size-4" />}
-            </Button>
-          </div>
+          {!isEchoPage && (
+            <div className="flex items-center gap-4 lg:hidden">
+              <Button
+                variant="outline"
+                size="icon"
+                aria-label="Main Menu"
+                onClick={() => setOpen(!open)}
+              >
+                {!open && <Menu className="size-4" />}
+                {open && <X className="size-4" />}
+              </Button>
+            </div>
+          )}
         </div>
 
         {/* Mobile Menu */}
-        {open && (
+        {open && !isEchoPage && (
           <div className="absolute inset-0 top-[72px] flex h-[calc(100vh-72px)] w-full flex-col overflow-scroll border-t border-border bg-background lg:hidden">
             <div>
               <button

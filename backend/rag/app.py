@@ -1,8 +1,8 @@
-import os, io, glob, json, hashlib, re, time
+import os, io, glob, json, hashlib, re
 from typing import List, Dict, Any, Union, Tuple
 from datetime import datetime
 
-from flask import Flask, request, jsonify, render_template, make_response
+from flask import Flask, request, jsonify, render_template
 from flask_cors import CORS
 from dotenv import load_dotenv
 
@@ -13,12 +13,10 @@ from pypdf import PdfReader
 
 from anthropic import Anthropic, NotFoundError
 import httpx  # required by anthropic client internals
-from secrets import token_urlsafe
 
-from threading import Thread
-from pathlib import Path
-
-
+# -----------------------------
+# Env & global init
+# -----------------------------
 # -----------------------------
 # Env & global init
 # -----------------------------
@@ -37,33 +35,31 @@ MODEL_FALLBACKS = [
     "claude-3-haiku-20240307",
 ]
 
+# ---- define dirs FIRST, then create them
 INDEX_DIR = os.getenv("INDEX_DIR", "./faiss_store")
 DATA_DIR = "./data/docs"
-os.makedirs(INDEX_DIR, exist_ok=True)
-os.makedirs(DATA_DIR, exist_ok=True)
 
+# NEW: where community folders live (absolute Windows path)
+BASE_DATA_DIR = os.getenv(
+    "BASE_DATA_DIR",
+    r"C:\Users\samat\OneDrive\Desktop\echo-project\backend\data"
+)
+
+# (kept for backwards compatibility; unused for rag files now)
 EXPORT_DIR = os.getenv("EXPORT_DIR", "./exports")
-os.makedirs(EXPORT_DIR, exist_ok=True)
 
-COMMUNITY_ROOT = os.getenv("COMMUNITY_ROOT", "./data")
-os.makedirs(COMMUNITY_ROOT, exist_ok=True)
+# ensure dirs exist
+for d in (INDEX_DIR, DATA_DIR, BASE_DATA_DIR, EXPORT_DIR):
+    os.makedirs(d, exist_ok=True)
 
-def _community_folder(community_id: str) -> str:
-    path = os.path.join(COMMUNITY_ROOT, community_id)
-    os.makedirs(path, exist_ok=True)
-    return path
+# paths that depend on INDEX_DIR
+INDEX_PATH = os.path.join(INDEX_DIR, "index.faiss")
+META_PATH  = os.path.join(INDEX_DIR, "meta.jsonl")
 
-
-# Handoff token TTL (seconds) — short-lived by default
-HANDOFF_TTL_SECONDS = int(os.getenv("HANDOFF_TTL_SECONDS", "600"))
-HANDOFFS: Dict[str, Dict[str, Any]] = {}  # token -> {"draft":..., "communityId":..., "ts": epoch_s}
 
 anthropic = Anthropic(api_key=ANTHROPIC_API_KEY)
 embedder = SentenceTransformer(EMBED_MODEL)
 EMB_DIM = embedder.get_sentence_embedding_dimension()
-
-INDEX_PATH = os.path.join(INDEX_DIR, "index.faiss")
-META_PATH  = os.path.join(INDEX_DIR, "meta.jsonl")
 
 # -----------------------------
 # Editorial bots (10 personas)
@@ -223,12 +219,14 @@ def _safe_filename_from_text(text: str, prefix: str = "analysis", ext: str = "js
     h = hashlib.sha1((text or "").encode("utf-8")).hexdigest()[:8]
     return f"{prefix}_{ts}_{h}.{ext}"
 
-def save_run_json(payload: Dict[str, Any], draft: str) -> str:
-    fname = _safe_filename_from_text(draft, prefix="analysis", ext="json")
-    fpath = os.path.join(EXPORT_DIR, fname)
+def save_run_json(payload: Dict[str, Any], out_dir: str, filename: str) -> str:
+    os.makedirs(out_dir, exist_ok=True)
+    fpath = os.path.join(out_dir, filename)
     with open(fpath, "w", encoding="utf-8") as f:
         json.dump(payload, f, ensure_ascii=False, indent=2)
     return os.path.abspath(fpath)
+
+
 
 def _slugify(name: str) -> str:
     name = name.lower()
@@ -295,6 +293,14 @@ def _normalize(v: np.ndarray) -> np.ndarray:
 
 # ---------- JSON corpus helpers (NEW) ----------
 def _extract_texts_from_json_obj(obj: Any, filename: str) -> List[Tuple[str, str]]:
+    """
+    Normalize many JSON shapes into a list of (source_label, text).
+    Supports:
+      { "sources": [ {url, text|data|content}, ... ] }
+      { "documents" | "docs": [ ..., ... ] }
+      { "text" | "data" | "content": "..." }
+      [ "text...", {"url":"...", "text":"..."} , ... ]
+    """
     out: List[Tuple[str, str]] = []
 
     def _pick_text(d: Dict[str, Any]) -> str:
@@ -305,6 +311,7 @@ def _extract_texts_from_json_obj(obj: Any, filename: str) -> List[Tuple[str, str
         return ""
 
     if isinstance(obj, dict):
+        # primary pattern: {"sources":[{url, text}, ...]}
         if isinstance(obj.get("sources"), list):
             for i, it in enumerate(obj["sources"]):
                 if isinstance(it, dict):
@@ -313,6 +320,7 @@ def _extract_texts_from_json_obj(obj: Any, filename: str) -> List[Tuple[str, str
                     url = (it.get("url") or "").strip()
                     label = f"{filename}::{url}" if url else f"{filename}::source_{i+1}"
                     out.append((label, txt))
+        # alt arrays
         for key in ("documents", "docs"):
             if isinstance(obj.get(key), list):
                 for i, it in enumerate(obj[key]):
@@ -324,6 +332,7 @@ def _extract_texts_from_json_obj(obj: Any, filename: str) -> List[Tuple[str, str
                         out.append((label, txt))
                     elif isinstance(it, str) and it.strip():
                         out.append((f"{filename}::{key[:-1]}_{i+1}", it))
+        # single text field
         single = None
         for k in ("text", "data", "content", "body"):
             v = obj.get(k)
@@ -347,6 +356,11 @@ def _extract_texts_from_json_obj(obj: Any, filename: str) -> List[Tuple[str, str
     return out
 
 def _extract_texts_from_path(path: str) -> List[Tuple[str, str]]:
+    """
+    For a given file path, return normalized (source_label, text) pairs.
+    - .json => parse and split into many docs
+    - others => single doc using file content
+    """
     ext = os.path.splitext(path)[1].lower()
     if ext == ".json":
         try:
@@ -355,6 +369,7 @@ def _extract_texts_from_path(path: str) -> List[Tuple[str, str]]:
             items = _extract_texts_from_json_obj(obj, os.path.basename(path))
             return [(src, txt) for (src, txt) in items if (txt and txt.strip())]
         except Exception:
+            # If JSON is malformed, fall back to raw text ingestion
             raw = _read_text(path)
             return [(path, raw)] if raw.strip() else []
     else:
@@ -363,6 +378,10 @@ def _extract_texts_from_path(path: str) -> List[Tuple[str, str]]:
 
 # ---------- Index build ----------
 def _build_index_from_paths(paths: List[str]) -> Dict[str, Any]:
+    """
+    Ingest txt/md/pdf as before, and JSON files where each JSON may contain many 'documents'.
+    Each (source_label, text) is chunked and embedded separately.
+    """
     index = _load_faiss()
     new_meta = []
     add_vecs: List[np.ndarray] = []
@@ -370,7 +389,7 @@ def _build_index_from_paths(paths: List[str]) -> Dict[str, Any]:
     ingested_chunks = 0
 
     for p in paths:
-        docs = _extract_texts_from_path(p)
+        docs = _extract_texts_from_path(p)  # list of (source_label, text)
         if not docs:
             continue
         for src_label, text in docs:
@@ -419,6 +438,7 @@ def retrieve(query: str, k: int = 6) -> List[Dict[str, Any]]:
     index = _load_faiss()
     q = embedder.encode([query], convert_to_numpy=True)
     q = _normalize(q).astype("float32")
+    # Overfetch then hash-dedup to avoid repeated snippets
     D, I = index.search(q, min(k*3, len(meta)))
     hits = []
     for score, idx in zip(D[0].tolist(), I[0].tolist()):
@@ -450,17 +470,22 @@ def _norm_1_10(v: Union[int, float, None]) -> Union[int, None]:
     return int(round(f))
 
 def _maybe_scale_5_to_10(ratings: Dict[str, Any]) -> Dict[str, Any]:
+    # Collect only numeric values
     vals = [float(v) for v in ratings.values() if isinstance(v, (int, float))]
     if not vals:
         return ratings
+
+    # If everything is <= 5, assume a /5 scale and double; else clamp to /10
     def _scale_or_none(v):
         if isinstance(v, (int, float)):
             return _norm_1_10(v * 2.0)
         return None
+
     if max(vals) <= 5.0:
         return {k: _scale_or_none(ratings.get(k)) for k in ratings}
     else:
         return {k: _norm_1_10(ratings.get(k)) for k in ratings}
+
 
 def _coerce_suggestions(sugg: Any) -> List[Dict[str, Any]]:
     out = []
@@ -597,6 +622,7 @@ CONTEXT SNIPPETS:
     citations = [int(i) for i in _to_list(data.get("citations")) if str(i).isdigit()]
     next_actions = [str(x) for x in _to_list(data.get("next_actions"))]
 
+    # Only headline coach can return headlines
     if bot["id"] != HEADLINE_BOT_ID:
         headline_suggestions = []
 
@@ -616,6 +642,7 @@ CONTEXT SNIPPETS:
 # Persona JSON extraction (robust)
 # -----------------------------
 def _extract_personas_from_content(content: str) -> List[Dict[str,Any]]:
+    # 1) Try as JSON dict with 'personas'
     try:
         obj = json.loads(content)
         if isinstance(obj, dict) and isinstance(obj.get("personas"), list):
@@ -624,6 +651,7 @@ def _extract_personas_from_content(content: str) -> List[Dict[str,Any]]:
             return obj
     except Exception:
         pass
+    # 2) Try dict slice { ... }
     try:
         start = content.find("{"); end = content.rfind("}")
         if start != -1 and end != -1 and end > start:
@@ -634,6 +662,7 @@ def _extract_personas_from_content(content: str) -> List[Dict[str,Any]]:
                 return obj
     except Exception:
         pass
+    # 3) Try to extract the personas array explicitly
     m = re.search(r'"personas"\s*:\s*(\[[\s\S]*\])', content)
     if m:
         arr_txt = m.group(1)
@@ -643,6 +672,7 @@ def _extract_personas_from_content(content: str) -> List[Dict[str,Any]]:
                 return arr
         except Exception:
             pass
+    # 4) Try bracket slice of first [...] in content
     try:
         lb = content.find("["); rb = content.rfind("]")
         if lb != -1 and rb != -1 and rb > lb:
@@ -726,7 +756,14 @@ DELIVER IN THE AUDIENCE SCHEMA ONLY."""
 
 def generate_audience_personas(draft: str, hits: List[Dict[str,Any]], n: int = 5,
                                temp: float = 0.2, max_tokens: int = 1200) -> List[Dict[str,str]]:
+    """
+    Two-pass generation:
+      Pass 1: ask for EXACTLY n personas.
+      Pass 2: if fewer than n, ask for the remaining count with explicit 'exclude_names'.
+      Only if still fewer than n do we use static fallbacks for the remainder.
+    """
     chosen: List[Dict[str,str]] = []
+    # Pass 1
     p1 = _generate_personas_once(draft, hits, target_n=n, exclude_names=[], temp=temp, max_tokens=max_tokens)
     seen = set()
     for p in p1:
@@ -736,6 +773,7 @@ def generate_audience_personas(draft: str, hits: List[Dict[str,Any]], n: int = 5
         chosen.append(p)
         if len(chosen) == n:
             break
+    # Pass 2
     if len(chosen) < n:
         missing = n - len(chosen)
         exclude = [p["name"] for p in chosen]
@@ -747,6 +785,7 @@ def generate_audience_personas(draft: str, hits: List[Dict[str,Any]], n: int = 5
             chosen.append(p)
             if len(chosen) == n:
                 break
+    # Final safety net
     if len(chosen) < n:
         defaults = _fallback_personas(draft)
         for d in defaults:
@@ -953,144 +992,6 @@ def aggregate_audience(per_audience: Dict[str, Dict[str,Any]]) -> Dict[str,Any]:
         "top_questions": tally(questions),
     }
 
-def _ensure_dir(p: str):
-    Path(p).mkdir(parents=True, exist_ok=True)
-
-def _community_folder(community_id: str) -> str:
-    # defensive: only allow folder-ish tokens
-    safe = re.sub(r"[^A-Za-z0-9._\-]/?", "", community_id).strip()
-    folder = os.path.join(COMMUNITY_ROOT, safe)
-    _ensure_dir(folder)
-    return folder
-
-def _write_json(path: str, data: Dict[str, Any]):
-    _ensure_dir(os.path.dirname(path))
-    with open(path, "w", encoding="utf-8") as f:
-        json.dump(data, f, ensure_ascii=False, indent=2)
-
-def _run_full_analysis_and_write_rag(
-    *,
-    draft: str,
-    artifact_number: int,
-    community_id: str,
-    top_k: int = 8,
-    temperature: float = 0.3,
-    max_tokens: int = 900
-) -> str:
-    """Run the same pipeline as /analyze, but save to <community>/rag_{i}.json and return its path."""
-    # Retrieval
-    retrieval_query = f"Key claims and entities in this draft: {draft[:2000]}"
-    hits = retrieve(retrieval_query, top_k)
-
-    # Personas
-    audience_personas = generate_audience_personas(
-        draft, hits, n=5, temp=0.2, max_tokens=1200
-    )
-
-    # Editorial bots
-    per_bot = {}
-    for i, bot in enumerate(BOTS):
-        bot_id = f"bot{str(i+1).zfill(2)}"
-        try:
-            per_bot[bot_id] = call_bot({"id": bot_id, **bot}, draft, hits, temperature, max_tokens)
-        except Exception as e:
-            per_bot[bot_id] = {
-                "summary": "Bot failed to generate.",
-                "key_points": [],
-                "suggestions": [],
-                "risks": [],
-                "ratings": {"clarity": 5, "accuracy": 5, "engagement": 5, "novelty": 5, "risk": 5},
-                "headline_suggestions": [],
-                "citations": [],
-                "next_actions": ["Retry or check server logs."],
-                "_model": "n/a",
-                "_error": f"{type(e).__name__}: {e}"
-            }
-
-    # Audience bots
-    per_audience = {}
-    for a in audience_personas:
-        try:
-            per_audience[a["id"]] = call_audience_bot(a, draft, hits, temperature, max_tokens)
-        except Exception as e:
-            per_audience[a["id"]] = {
-                "persona_takeaway": "Audience bot failed to generate.",
-                "stance": "mixed",
-                "positives": [],
-                "concerns": [],
-                "questions_for_reporter": [],
-                "scores": {"trust":5,"relevance":5,"share_intent":5},
-                "likely_comment": "",
-                "suggestions_to_journalist": [],
-                "citations": [],
-                "_model": "n/a",
-                "_error": f"{type(e).__name__}: {e}"
-            }
-
-    editorial_rollup = aggregate_editorial(per_bot)
-    headline_pool = (per_bot.get(HEADLINE_BOT_ID, {}) or {}).get("headline_suggestions", [])[:12]
-    audience_rollup = aggregate_audience(per_audience)
-
-    # Build export payload (this is what your extractor expects)
-    export_payload = {
-        "meta": {
-            "timestamp_utc": datetime.utcnow().isoformat() + "Z",
-            "params": {"top_k": top_k, "temperature": temperature, "max_tokens": max_tokens},
-            "models": {"fallbacks": MODEL_FALLBACKS},
-        },
-        "input": {
-            "draft": draft,
-            "retrieval_query": retrieval_query
-        },
-        "retrieval": {
-            "query_used": retrieval_query,
-            "snippets": [
-                {
-                    "idx": i+1,
-                    "source": h["source"],
-                    "chunk_index": h["chunk_index"],
-                    "score": h["score"],
-                    "text": h["text"]
-                } for i, h in enumerate(hits)
-            ]
-        },
-        "editorial": {
-            "bots": [{"id": f"bot{str(i+1).zfill(2)}", "name": b["name"]} for i, b in enumerate(BOTS)],
-            "per_bot": per_bot,
-            "rollup": editorial_rollup,
-            "headline_pool": headline_pool
-        },
-        "audience": {
-            "personas": audience_personas,
-            "per_audience": per_audience,
-            "rollup": audience_rollup
-        }
-    }
-
-    # Write rag_i.json inside the community folder
-    folder = _community_folder(community_id)
-    rag_path = os.path.join(folder, f"rag_{int(artifact_number)}.json")
-    _write_json(rag_path, export_payload)
-
-    # OPTIONAL: also write a copy to /exports for archival
-    try:
-        save_run_json(export_payload, draft)
-    except Exception:
-        pass
-
-    # OPTIONAL: produce llmready_{i}.json using your extractor (if present)
-    try:
-        from echo_data_extractor import EchoDataExtractor
-        extractor = EchoDataExtractor()
-        echo_data = extractor.transform_to_echo_format(rag_path)
-        llmready_path = os.path.join(folder, f"llmready_{int(artifact_number)}.json")
-        _write_json(llmready_path, echo_data)
-    except Exception as e:
-        print(f"[extractor] skip/failed: {e}")
-
-    return rag_path
-
-
 # -----------------------------
 # Synthetic seed data (optional demo)
 # -----------------------------
@@ -1144,80 +1045,11 @@ def write_seed_files():
     return written
 
 # -----------------------------
-# Handoff helpers
-# -----------------------------
-def _cleanup_handoffs():
-    """Remove expired tokens."""
-    now = time.time()
-    expired = [t for t, v in HANDOFFS.items() if now - v.get("ts", 0) > HANDOFF_TTL_SECONDS]
-    for t in expired:
-        HANDOFFS.pop(t, None)
-
-def _consume_token(token: str) -> Dict[str, Any]:
-    """Return payload if token valid & unexpired; pop it (one-time)."""
-    _cleanup_handoffs()
-    info = HANDOFFS.pop(token, None)
-    if not info:
-        return {}
-    if time.time() - info.get("ts", 0) > HANDOFF_TTL_SECONDS:
-        return {}
-    return info
-
-# -----------------------------
 # Routes: UI
 # -----------------------------
 @app.get("/")
 def index():
-    """
-    If ?token=... is present, prefill the draft <textarea id="draft"> and optionally autostart.
-    We inject a tiny inline <script> right before </body> so you don't need to change index.html.
-    """
-    token = request.args.get("token", "").strip()
-    autostart = request.args.get("autostart", "0").strip() in ("1", "true", "yes")
-
-    # Render the base template first
-    html = render_template("index.html")
-
-    if not token:
-        return html
-
-    info = _consume_token(token)
-    draft = (info.get("draft") or "").strip() if info else ""
-    if not draft:
-        # Token invalid/expired, just show page
-        return html
-
-    # Inject a script that fills the textarea and optionally clicks Analyze
-    injection = f"""
-<script>
-window.addEventListener('DOMContentLoaded', function(){{
-  try {{
-    var draft = {json.dumps(draft)};
-    var ta = document.getElementById('draft');
-    if (ta) ta.value = draft;
-    var autostart = {json.dumps(bool(autostart))};
-    if (autostart) {{
-      var btn = document.getElementById('analyzeBtn');
-      if (btn) btn.click();
-    }}
-  }} catch (e) {{}}
-}});
-</script>
-"""
-    # Insert before </body>
-    if "</body>" in html:
-        html = html.replace("</body>", injection + "\n</body>")
-    else:
-        html = html + injection
-    return make_response(html)
-
-@app.get("/")
-def index():
     return render_template("index.html")
-@app.get("/run/<run_id>")
-def run_view(run_id: str):
-    """Simple page that fetches /api/run/<run_id> and renders results (template must exist)."""
-    return render_template("run.html", run_id=run_id)
 
 @app.get("/sample_draft")
 def sample_draft():
@@ -1276,7 +1108,7 @@ def ingest_upload():
             return jsonify({"ok": False, "msg": "No usable texts in JSON"}), 400
         for src_label, text in docs:
             chunks = _chunk(text)
-            if not chunks:
+            if not chunks: 
                 continue
             embs = embedder.encode(chunks, convert_to_numpy=True)
             embs = _normalize(embs).astype("float32")
@@ -1291,6 +1123,7 @@ def ingest_upload():
             total_chunks += len(chunks)
             ingested_docs += 1
     else:
+        # txt/md/pdf and other plain text
         text = ""
         try:
             text = content.decode("utf-8", errors="ignore")
@@ -1339,24 +1172,49 @@ def search():
 @app.post("/analyze")
 def analyze():
     body = request.get_json(silent=True) or {}
-    draft = body.get("draft", "").strip()
+    draft = (body.get("draft") or "").strip()
     if not draft:
         return jsonify({"ok": False, "msg": "Missing 'draft'"}), 400
 
+    # where to save rag_i.json
+    community_id = (body.get("communityId") or body.get("community_id") or "").strip()
+    artifact_number = body.get("artifact_number")  # number from frontend, optional
+
+    community_dir = os.path.join(BASE_DATA_DIR, community_id) if community_id else BASE_DATA_DIR
+    os.makedirs(community_dir, exist_ok=True)
+
+    # pick i (artifact index) without clobbering later loop vars
+    if isinstance(artifact_number, int):
+        artifact_idx = int(artifact_number)
+    else:
+        existing = []
+        try:
+            for name in os.listdir(community_dir):
+                m = re.match(r"rag_(\d+)\.json$", name)
+                if m:
+                    existing.append(int(m.group(1)))
+        except FileNotFoundError:
+            pass
+        artifact_idx = max(existing) + 1 if existing else 1
+
+    rag_filename = f"rag_{artifact_idx}.json"
+
+    # RAG params
     top_k = int(body.get("top_k", 8))
-    temperature = float(body.get("temperature", 0.3))  # precision
+    temperature = float(body.get("temperature", 0.3))
     max_tokens = int(body.get("max_tokens", 900))
 
+    # retrieval
     retrieval_query = f"Key claims and entities in this draft: {draft[:2000]}"
     hits = retrieve(retrieval_query, top_k)
 
-    audience_personas = generate_audience_personas(
-        draft, hits, n=5, temp=0.2, max_tokens=1200
-    )
+    # audience personas
+    audience_personas = generate_audience_personas(draft, hits, n=5, temp=0.2, max_tokens=1200)
 
+    # editorial bots
     per_bot = {}
-    for i, bot in enumerate(BOTS):
-        bot_id = f"bot{str(i+1).zfill(2)}"
+    for b_idx, bot in enumerate(BOTS):
+        bot_id = f"bot{str(b_idx+1).zfill(2)}"
         try:
             per_bot[bot_id] = call_bot({"id": bot_id, **bot}, draft, hits, temperature, max_tokens)
         except Exception as e:
@@ -1370,9 +1228,10 @@ def analyze():
                 "citations": [],
                 "next_actions": ["Retry or check server logs."],
                 "_model": "n/a",
-                "_error": f"{type(e).__name__}: {e}"
+                "_error": f"{type(e).__name__}: {e}",
             }
 
+    # audience bots
     per_audience = {}
     for a in audience_personas:
         try:
@@ -1384,36 +1243,38 @@ def analyze():
                 "positives": [],
                 "concerns": [],
                 "questions_for_reporter": [],
-                "scores": {"trust":5,"relevance":5,"share_intent":5},
+                "scores": {"trust": 5, "relevance": 5, "share_intent": 5},
                 "likely_comment": "",
                 "suggestions_to_journalist": [],
                 "citations": [],
                 "_model": "n/a",
-                "_error": f"{type(e).__name__}: {e}"
+                "_error": f"{type(e).__name__}: {e}",
             }
 
+    # rollups
     editorial_rollup = aggregate_editorial(per_bot)
     headline_pool = (per_bot.get(HEADLINE_BOT_ID, {}) or {}).get("headline_suggestions", [])[:12]
     audience_rollup = aggregate_audience(per_audience)
 
+    # response (what the client uses)
     response_payload = {
-        "bots": [{"id": f"bot{str(i+1).zfill(2)}", "name": b["name"]} for i, b in enumerate(BOTS)],
+        "bots": [{"id": f"bot{str(bi+1).zfill(2)}", "name": b["name"]} for bi, b in enumerate(BOTS)],
         "audience_bots": [
-            {"id": a["id"], "name": a["name"], "why_included": a.get("why_included","")}
+            {"id": a["id"], "name": a["name"], "why_included": a.get("why_included", "")}
             for a in audience_personas
         ],
         "retrieval": {
             "query_used": retrieval_query,
             "snippets": [
                 {
-                    "idx": i+1,
+                    "idx": j + 1,
                     "source": h["source"],
                     "chunk_index": h["chunk_index"],
                     "score": h["score"],
-                    "text": h["text"]
+                    "text": h["text"],
                 }
-                for i, h in enumerate(hits)
-            ]
+                for j, h in enumerate(hits)
+            ],
         },
         "per_bot": per_bot,
         "per_audience": per_audience,
@@ -1429,131 +1290,41 @@ def analyze():
             "stance_counts": audience_rollup["stance_counts"],
             "top_concerns": audience_rollup["top_concerns"],
             "top_questions": audience_rollup["top_questions"],
-        }
+        },
     }
 
+    # on-disk export (this is your rag_i.json)
     export_payload = {
         "meta": {
             "timestamp_utc": datetime.utcnow().isoformat() + "Z",
             "params": {"top_k": top_k, "temperature": temperature, "max_tokens": max_tokens},
             "models": {"fallbacks": MODEL_FALLBACKS},
         },
-        "input": {
-            "draft": draft,
-            "retrieval_query": retrieval_query
-        },
+        "input": {"draft": draft, "retrieval_query": retrieval_query},
         "retrieval": response_payload["retrieval"],
         "editorial": {
             "bots": response_payload["bots"],
             "per_bot": per_bot,
             "rollup": editorial_rollup,
-            "headline_pool": headline_pool
+            "headline_pool": headline_pool,
         },
         "audience": {
             "personas": audience_personas,
             "per_audience": per_audience,
-            "rollup": audience_rollup
-        }
+            "rollup": audience_rollup,
+        },
     }
 
-    artifact_number = int(body.get("artifact_number") or body.get("artifact") or 1)
-    community_id = (body.get("communityId") or "default").strip()
-    folder = _community_folder(community_id)
-    rag_path = os.path.join(folder, f"rag_{artifact_number}.json")
-    with open(rag_path, "w", encoding="utf-8") as f:
-        json.dump(export_payload, f, ensure_ascii=False, indent=2)
+    export_file_path = save_run_json(export_payload, community_dir, rag_filename)
 
-    export_file_path = save_run_json(export_payload, draft)
-
-# NEW: derive a run_id from the export filename (without .json)
-    run_id = os.path.splitext(os.path.basename(export_file_path))[0]
-
-# include these in the response
-    response_payload["export_file"] = export_file_path
-    response_payload["rag_file"] = rag_path
-    response_payload["community_id"] = community_id
-    response_payload["artifact_number"] = artifact_number
-
-    response_payload["run_id"] = run_id
-    response_payload["ok"] = True
-    artifact_number = body.get("artifact_number")
-    community_id = (body.get("communityId") or "").strip()
-    if artifact_number is not None and community_id:
-        try:
-            folder = _community_folder(community_id)
-            rag_path = os.path.join(folder, f"rag_{int(artifact_number)}.json")
-            _write_json(rag_path, export_payload)
-            response_payload["rag_file"] = rag_path
-        except Exception as e:
-            print(f"[rag write] failed: {e}")
-
+    response_payload.update({
+        "ok": True,
+        "export_file": export_file_path,
+        "artifact_number": artifact_idx,
+        "community_id": community_id,
+    })
     return jsonify(response_payload)
 
-@app.post("/analyze_async")
-def analyze_async():
-    """
-    Body: { draft: str, artifact_number: int, communityId: str, top_k?, temperature?, max_tokens? }
-    Returns immediately; analysis runs in a background thread that writes <community>/rag_{i}.json
-    """
-    body = request.get_json(silent=True) or {}
-    draft = (body.get("draft") or "").strip()
-    artifact_number = body.get("artifact_number")
-    community_id = (body.get("communityId") or "").strip()
-
-    if not draft:
-        return jsonify({"ok": False, "msg": "Missing 'draft'"}), 400
-    if artifact_number is None:
-        return jsonify({"ok": False, "msg": "Missing 'artifact_number'"}), 400
-    if not community_id:
-        return jsonify({"ok": False, "msg": "Missing 'communityId'"}), 400
-
-    try:
-        t = Thread(
-            target=_run_full_analysis_and_write_rag,
-            kwargs=dict(
-                draft=draft,
-                artifact_number=int(artifact_number),
-                community_id=community_id,
-                top_k=int(body.get("top_k", 8)),
-                temperature=float(body.get("temperature", 0.3)),
-                max_tokens=int(body.get("max_tokens", 900)),
-            ),
-            daemon=True,
-        )
-        t.start()
-        return jsonify({"ok": True, "started": True, "artifact_number": int(artifact_number), "communityId": community_id})
-    except Exception as e:
-        return jsonify({"ok": False, "msg": f"failed to start job: {e}"}), 500
-
-# -----------------------------
-# Handoff API
-# -----------------------------
-@app.post("/handoff")
-def handoff():
-    """
-    Body: { draft: str, communityId?: str }
-    Returns: { ok: true, token: "..." }
-    """
-    body = request.get_json(silent=True) or {}
-    draft = (body.get("draft") or "").strip()
-    community_id = (body.get("communityId") or "").strip()
-    if not draft:
-        return jsonify({"ok": False, "msg": "Missing 'draft'"}), 400
-
-    _cleanup_handoffs()
-    tok = token_urlsafe(18)
-    HANDOFFS[tok] = {"draft": draft, "communityId": community_id, "ts": time.time()}
-    return jsonify({"ok": True, "token": tok, "ttl_seconds": HANDOFF_TTL_SECONDS})
-
-@app.get("/api/run/<run_id>")
-def api_run(run_id: str):
-    """Return the saved export JSON for a completed run."""
-    path = os.path.join(EXPORT_DIR, f"{run_id}.json")
-    if not os.path.exists(path):
-        return jsonify({"ok": False, "msg": "Run not found"}), 404
-    with open(path, "r", encoding="utf-8") as f:
-        data = json.load(f)
-    return jsonify({"ok": True, "run_id": run_id, "data": data})
 
 
 if __name__ == "__main__":

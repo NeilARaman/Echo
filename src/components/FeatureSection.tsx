@@ -32,7 +32,7 @@ const DATA = [
 ];
 const FeatureSection = () => {
   return (
-    <section id="societies" className="py-32 max-w-7xl mx-auto ">
+    <section id="societies" className="py-5 max-w-7xl mx-auto ">
       <div className="border-y">
         <div className="container flex flex-col gap-6 border-x py-4 max-lg:border-x lg:py-8 px-7 relative">
           <div className="flex items-center gap-4">

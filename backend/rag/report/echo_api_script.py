@@ -2,11 +2,11 @@ import json
 import requests
 from dotenv import load_dotenv
 import os
+import sys
 
 # Configuration
 load_dotenv()
 API_KEY = os.getenv("ECHO_KEY")
-JSON_FILE_PATH = "output.json"  # Path to your JSON file
 API_URL = "https://api.anthropic.com/v1/messages"
 
 SYSTEM_PROMPT = """You are Echo, an AI editorial assistant that synthesizes specialist analyses into concise summary reports for journalists.
@@ -140,10 +140,10 @@ def save_response(response, output_file="echo_report.json"):
     except Exception as e:
         print(f"Error saving response: {e}")
 
-def main():
+def main(json_file_path):
     # Load JSON data
     #print(f"📁 Loading {JSON_FILE_PATH}...")
-    json_data = load_json_file(JSON_FILE_PATH)
+    json_data = load_json_file(json_file_path)
     
     if not json_data:
         return
@@ -165,4 +165,7 @@ def main():
         print("❌ Failed to get response from Claude")
 
 if __name__ == "__main__":
-    main()
+    if len(sys.argv) < 2:
+        print("Usage: python echo_api_script.py <json_file_path>")
+        sys.exit(1)
+    sys.exit(main(sys.argv[1]))

@@ -14,6 +14,8 @@ from pypdf import PdfReader
 from anthropic import Anthropic, NotFoundError
 import httpx  # required by anthropic client internals
 
+from report import echo_data_extractor
+
 # -----------------------------
 # Env & global init
 # -----------------------------
@@ -39,10 +41,10 @@ MODEL_FALLBACKS = [
 INDEX_DIR = os.getenv("INDEX_DIR", "./faiss_store")
 DATA_DIR = "./data/docs"
 
-# NEW: where community folders live (absolute Windows path)
+# NEW: where community folders live 
 BASE_DATA_DIR = os.getenv(
     "BASE_DATA_DIR",
-    r"C:\Users\samat\OneDrive\Desktop\echo-project\backend\data"
+    r"../data"
 )
 
 # (kept for backwards compatibility; unused for rag files now)
@@ -1171,9 +1173,11 @@ def search():
 
 @app.post("/analyze")
 def analyze():
+    print('analyze called')
     body = request.get_json(silent=True) or {}
     draft = (body.get("draft") or "").strip()
     if not draft:
+        print('missing draft')
         return jsonify({"ok": False, "msg": "Missing 'draft'"}), 400
 
     # where to save rag_i.json
@@ -1182,6 +1186,8 @@ def analyze():
 
     community_dir = os.path.join(BASE_DATA_DIR, community_id) if community_id else BASE_DATA_DIR
     os.makedirs(community_dir, exist_ok=True)
+
+    print('about to pick artifact index')
 
     # pick i (artifact index) without clobbering later loop vars
     if isinstance(artifact_number, int):
@@ -1199,6 +1205,8 @@ def analyze():
 
     rag_filename = f"rag_{artifact_idx}.json"
 
+    print(f'using artifact index {artifact_idx} -> {rag_filename}')
+
     # RAG params
     top_k = int(body.get("top_k", 8))
     temperature = float(body.get("temperature", 0.3))
@@ -1210,6 +1218,8 @@ def analyze():
 
     # audience personas
     audience_personas = generate_audience_personas(draft, hits, n=5, temp=0.2, max_tokens=1200)
+
+    print(f'generated {len(audience_personas)} audience personas')
 
     # editorial bots
     per_bot = {}
@@ -1231,6 +1241,8 @@ def analyze():
                 "_error": f"{type(e).__name__}: {e}",
             }
 
+    print(f'completed editorial bot calls for {len(per_bot)} bots')
+
     # audience bots
     per_audience = {}
     for a in audience_personas:
@@ -1250,6 +1262,8 @@ def analyze():
                 "_model": "n/a",
                 "_error": f"{type(e).__name__}: {e}",
             }
+
+    print(f'completed audience bot calls for {len(per_audience)} personas')
 
     # rollups
     editorial_rollup = aggregate_editorial(per_bot)
@@ -1316,7 +1330,10 @@ def analyze():
     }
 
     export_file_path = save_run_json(export_payload, community_dir, rag_filename)
+    print(f'Wrote RAG analysis to {export_file_path}')
 
+    echo_data_extractor.extract_and_run_echo(community_dir, artifact_idx)
+    
     response_payload.update({
         "ok": True,
         "export_file": export_file_path,

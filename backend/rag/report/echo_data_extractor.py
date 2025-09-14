@@ -313,14 +313,12 @@ def main():
     return 0
 
 # Example usage in a script:
-def extract_and_run_echo(analysis_folder_name: str, analysis_file_name: str):
+def extract_and_run_echo(analysis_folder_name: str, i: int):
     """Helper function to extract data and run Echo in one step."""
     extractor = EchoDataExtractor()
+    analysis_file_name = f"rag_{i}.json"
     analysis_file_path = os.path.join(analysis_folder_name, analysis_file_name)
     echo_data = extractor.transform_to_echo_format(analysis_file_path)
-
-    # Extract int from analysis_file_name like "rag_123.txt"
-    i = int(analysis_file_name.replace("rag_", "").replace(".json", ""))
 
     # Save to "llmready_i.json" in the analysis folder
     output_file = os.path.join(analysis_folder_name, f"llmready_{i}.json")
@@ -340,8 +338,8 @@ def extract_and_run_echo(analysis_folder_name: str, analysis_file_name: str):
         ], capture_output=True, text=True)
         
         if result.returncode == 0:
-            print("ECHO EDITORIAL SUMMARY:")
-            print("=" * 50)
+            #print("ECHO EDITORIAL SUMMARY:")
+            #print("=" * 50)
             print(result.stdout)
             # Save response to response_i.json
             response_file = os.path.join(analysis_folder_name, f"response_{i}.json")
@@ -357,7 +355,7 @@ def extract_and_run_echo(analysis_folder_name: str, analysis_file_name: str):
 
 if __name__ == "__main__":
     # Example usage
-    extract_and_run_echo("../data/community_2025-09-13T18-48-29-962Z", "rag_1.json")
+    extract_and_run_echo("../../data/community_2025-09-13T18-48-29-962Z", 5)
 
 """if __name__ == "__main__":
     sys.exit(main())"""

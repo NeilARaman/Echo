@@ -106,7 +106,7 @@ def scrape_community(community_description: str, max_links: int = 10, api_key: s
     return output_file
 
 
-if __name__ == "__main__":
+"""if __name__ == "__main__":
     community_desc = "liberal millenials"
-    firecrawl_api_key = "fc-47b727bae8f347a1aff6d3e795af5691"
-    output_path = scrape_community(community_desc, max_links=10, api_key=firecrawl_api_key)
+    firecrawl_api_key = "[INSERT_KEY]"
+    output_path = scrape_community(community_desc, max_links=10, api_key=firecrawl_api_key)"""

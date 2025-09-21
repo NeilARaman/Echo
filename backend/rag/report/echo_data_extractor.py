@@ -353,9 +353,6 @@ def extract_and_run_echo(analysis_folder_name: str, i: int):
     
     return output_file, response_file
 
-if __name__ == "__main__":
-    # Example usage
-    extract_and_run_echo("../../data/community_2025-09-13T18-48-29-962Z", 5)
-
 """if __name__ == "__main__":
-    sys.exit(main())"""
+    # Example usage
+    extract_and_run_echo("../../data/community_2025-09-13T18-48-29-962Z", 5)"""

@@ -1,0 +1,841 @@
+# Identify the Community
+Identify the Community
+## Community Characteristics
+Examples of the types of information health assessors can collect to get to know their site-specific community include:
+- Special community considerations, such as non-English speakers.
+- Key values, such as strong family and community bonds.
+- Key fears, such as fear of government, loss of property values, and safety concerns.
+- Sources used by the community to get their information.
+- Knowledge the community has of the site and site-specific issues.
+- Other environmental issues, such as what other areas of contamination people are aware of.
+## Demographic Data
+- Provide information on _potentially_ exposed populations, which is important for determining site-specific exposure pathways, but alone do not define exposure.
+- Be available from the national census, which is conducted once every 10 years. You might be able to find more recent population estimates between census years but will have to review their source and applicability carefully.
+Health assessors can work with GRASP to help generate site-specific maps that they can use to better define exposure pathways. For example, imagine you have an on-site arsenic-contaminated stream that runs offsite into a neighborhood, resulting in the presence of arsenic-contaminated soils and sediments in many residential yards. If this was your site scenario, you would want to see if GRASP could help you define the area around the stream’s travel path to get a better estimate of the population potentially exposed to arsenic in the streambed.
+Geospatial Research, Analysis, and Services Program (GRASP)
+## Community Health Concerns
+Understanding community health concerns related to a site or environmental release is an important component of the PHA process and ATSDR’s overall mission. It is critical to investigate community health concerns early in the process to the greatest extent practical and to choose the best PHA process product that will address community concerns.
+## Health Outcome Data
+If deemed appropriate for collection, these data might reveal whether people living or working near a site are experiencing harmful health effects at a rate higher than would be expected to occur. However, there has to be specific individual exposure information to truly link health outcomes with site-related exposures _._
+Health outcome data you may obtain include:
+- Morbidity data (e.g., incidence of cancer, birth defects, or other diseases from state or county disease registries).
+- Biomonitoring data collected by various parties documented in resources, such as the National Institute for Occupational Safety and Health (NIOSH) health hazard evaluations (HHEs) and university research publications.
+- Mortality data (e.g., death certificates).
+- Disease information from community health records, healthcare provider agencies, and individual entities (e.g., community health centers, private physicians).
+- Health statistics from community health studies.
+Consult with an ATSDR epidemiologist to determine the extent to which health outcome data will be useful for your site-specific evaluation.
+Community Concern Assessment Tool
+Community Data Worksheet
+Last Reviewed: January 16, 2025
+
+2024 American Community Survey 1-year estimates are now available.
+- Data Profiles
+# Data Profiles
+# Data Profiles
+Data Profiles have the most frequently requested social, economic, housing,
+and demographic data. Each of these four subject areas is a separate data profile.
+The Data Profiles summarize the data for a single geographic area, both numbers and percent,
+to cover the most basic data on all topics.
+## ACS 5-Year Data Profile
+##### Use Geography Selector
+##### \- or -
+##### Use Address Lookup
+#### Select a Geography Type
+Nation StateCounty
+County SubdivisionPlaceCensus TractZIP Code Tabulation Area
+#### Selected Geography:
+#### Address Lookup Tool
+Enter an address in a single line to retrieve the Data Profiles links for the corresponding Census Tract and links for other available geographies for the requested address such as State, Town (place), County, and more.
+_Note: Data Profiles for Congressional Districts retrieved in this tool are only available for 2022 and 2023._
+Look Up Address
+Get Data Profile Links
+— includes Education, Marital Status, Relationships, Fertility, Grandparents...
+— includes Income, Employment, Occupation, Commuting to Work...
+— includes Occupancy and Structure, Housing Value and Costs, Utilities...
+— includes Education, Marital Status, Relationships, Fertility, Grandparents...
+— includes Income, Employment, Occupation, Commuting to Work...
+— includes Occupancy and Structure, Housing Value and Costs, Utilities...
+— includes Sex and Age, Race, Hispanic Origin, Housing Units...
+
+# Understanding the 2024 American Community Survey 1-Year Estimates
+# Understanding the 2024 American Community Survey 1-Year Estimates
+September 11, 2025
+Written by:
+Stacy Gimbel Vidal, Public Information Office; Eric Jensen, senior advisor for population estimates and coverage measurement, Population Division; Jonathan Eggleston, senior economist, Center for Economic Studies; Edward Castro, chief, American Community Survey Estimation Branch
+_Estimated reading time: 9 minutes_
+Each year, the U.S. Census Bureau conducts the American Community Survey (ACS), providing a detailed portrait of our nation and communities.
+Not everyone receives the ACS, though. It just goes to a sample — or randomly selected portion — of addresses each month. The responses are combined to paint the statistical portrait.
+What that portrait looks like each year is ultimately affected by:
+- Who is in the sample.
+- Who responds.
+- How many people each respondent represents.
+This blog discusses how these elements come into play in the 2024 ACS 1-year estimates and how they may contribute to differences observed in some estimates compared to prior years.
+For example, every year the survey uses “population controls” to align the ACS estimates with official population estimates. The 2024 population estimates for the overall population and certain subpopulations significantly increased after we improved a key component of the estimates. This increase is reflected in the ACS survey estimates, too, and interacted with other methodological elements discussed in this blog, which contributed to year-to-year change in the ACS results.
+### Who is in the Sample
+We strive to draw a sample that can be used to represent the whole population. The estimates derived from the sample need to reflect the entire population as accurately as possible.
+You can get a sense of how close we’re getting to the true value for the overall population by looking at the margin of error published next to each estimate.
+For example, if an estimate is 200 and the margin of error is ± 10, that means there’s a 90% probability that the true value for the population is within 200 ± 10. In other words, we’re 90% confident it’s between 190 and 210.
+We encourage data users to be mindful of the margins of error when focusing on any particular estimate. The margin of error is the key to understanding the degree of uncertainty in the estimate.
+### Who Responds
+We ask households selected in the sample to respond to the ACS online or by mail (and we send reminders). If they don’t respond, we send field representatives to a sample of the nonresponding households to try to gather their responses in person or by phone. This follow-up operation is called Computer-Assisted Personal Interviewing (CAPI).
+One way the ACS controls costs of data collection is by identifying households to stop interviewing in person or by phone. In 2024, we improved our method to have a limited, data-driven approach to stopping cases:
+- For the first two weeks of the CAPI operation, we attempt to interview every household in the CAPI sample to ensure each housing unit has an opportunity to respond.
+- During the operation’s final two weeks, we prioritize the remaining cases, focusing our resources on collecting data from sampled housing units that, based on administrative data, are less represented among those who have already responded.
+- The remaining cases are still eligible to respond online or via the paper questionnaire, and a small portion do.
+Along the way, one of the things we evaluate is whether the people who respond have different characteristics from those who don’t. For example, if only retired individuals respond, then statistics on labor force participation would not be accurate because they would not be factoring in households with people who are working.
+This concept is called “nonresponse bias” because it can bias the estimates if there are major differences between the two groups.
+To evaluate nonresponse bias for the ACS, we look at administrative data for households in the sample (when available) and compare how certain characteristics of the people who responded might be different from those who didn’t.
+### Representing Others
+To figure out how many people each respondent should represent, we develop weights based on the sample design, response and nonresponse, and the population and housing unit controls.
+The controls are independent estimates of:
+- Hispanic origin.
+- Total number of housing units.
+These characteristics within the ACS sample can differ from known population levels because of sampling variability and differences between people who respond and those who don’t.
+The improved methodology more accurately reflects the net increase in migrants to the United States between 2022 and 2024. As a result, there was a cumulative increase of 5.196 million people for the 2024 ACS 1-year estimates. Using these updated controls helps us improve the overall accuracy of the ACS estimates.
+The increase in net international migration is reflected in the 2024 ACS 1-year count estimates of people across topics. This will be especially apparent when comparing to prior ACS years.
+- For example, in our ACS comparison profile table on economic characteristics (Table CP03), you might notice that the civilian labor force increased by nearly 4 million people.
+- Some of this increase might capture changing economic conditions over time, but it may also reflect the large year-to-year population increase due to both demographic changes and updates to the methodology.
+The population increase may also be impacting estimates beyond just population counts.
+- A good example would be the average household size, which is a function of both population size and the number of occupied housing units.
+- When looking at the comparison profile for housing characteristics (Table CP04), you might notice an increase in average household size for your state, county or place this year — despite the decreasing trend over the past few years.
+When looking at counts of people across the ACS tables, especially when comparing to 2023, it is important to consider the increase in population because of the higher level of net international migration. While this new population total for 2024 uses an improved methodology and more accurately reflects the total U.S. population, we encourage users to take this increase into consideration when comparing subpopulations over time.
+Also, keep in mind that the ACS is designed to measure characteristic distributions. Whenever possible, we generally recommend comparing population characteristics such as percentages, means, medians, and rates rather than estimates of population totals.
+### Quality Checks
+We analyze the data by comparing it against past benchmarks to identify outliers or unexpected results that need to be further examined. We triple-check data collection and processing, analyze the sample and the potential for nonresponse bias, and verify the weighting process.
+As we do with all our data products, we’ve investigated unexpected differences in the 2024 estimates and determined that they are not due to data collection or processing errors.
+As usual, we encourage data users to be mindful of margins of error published alongside the ACS estimates. The margins of error provide information on the uncertainty embedded in the estimates related to sampling variability and should guide how you use the estimates.
+We also encourage data users to be mindful of the potential interplay of the other factors discussed in this blog, as they may contribute to unexpected differences in the estimates compared with recent years.
+### Conclusion
+In summary, the 2024 ACS 1-year estimates will reflect:
+- Changes in the population.
+- Who is in the survey’s sample.
+- Who responds and how they’re different from those who don’t.
+- The weighting methodology, or how many people each response represents.
+- Changes in the population controls, particularly the methodological improvements to better reflect the large net increase in immigrants and total population.
+This article was filed under:
+[Previous\\
+Page Last Revised - September 10, 2025
+
+Los Angeles CountyAlhambraAltadena (Unincorporated)ArcadiaAthens-Westmont (Unincorporated)AzusaBaldwin ParkBellBell GardensBellflowerBeverly HillsBurbankCalabasasCarsonCastaic (Unincorporated)CerritosClaremontComptonCovinaCudahyCulver CityDiamond BarDowneyDuarteEast Los Angeles (Unincorporated)El MonteFlorence-Firestone (Unincorporated)GardenaGlendaleGlendoraHacienda Heights (Unincorporated)HawthorneHuntington ParkInglewoodLa MiradaLa PuenteLa VerneLakewoodLancasterLawndaleLomitaLos AngelesLynwoodManhattan BeachMaywoodMonroviaMontebelloMonterey ParkNortheast San Gabriel (Unincorporated)NorwalkPalmdaleParamountPico RiveraPomonaRancho Palos VerdesRedondo BeachRosemeadRowland Heights (Unincorporated)San DimasSan FernandoSan GabrielSanta ClaritaSanta MonicaSouth GateSouth PasadenaSouth Whittier (Unincorporated)Stevenson Ranch (Unincorporated)Temple CityTorranceValinda (Unincorporated)WalnutWest Carson (Unincorporated)West CovinaWest HollywoodWest Whittier/Los Nietos (Unincorporated)WhittierWillowbrook (Unincorporated)District 1District 2District 3District 4District 5SPA 1: Antelope ValleySPA 2: San FernandoSPA 3: San GabrielSPA 4: MetroSPA 5: WestSPA 6: SouthSPA 7: EastSPA 8: South BayArletaBaldwin HillsBoyle HeightsBrentwoodCanoga ParkCentralCentury Palms/CoveChatsworthCity Council District 1City Council District 2City Council District 3City Council District 4City Council District 5City Council District 6City Council District 7City Council District 8City Council District 9City Council District 10City Council District 11City Council District 12City Council District 13City Council District 14City Council District 15City of Los AngelesDel ReyDowntownEagle RockEast HollywoodEl SerenoEncinoExposition ParkFlorence-FirestoneGlassell ParkGranada HillsGreen MeadowsHarbor CityHarbor GatewayHarvard ParkHighland ParkHollywoodHollywood HillsHyde ParkKoreatownLake BalboaLincoln HeightsLittle BangladeshLos FelizMar VistaMelroseMission HillsMt. WashingtonNorth HillsNorth HollywoodNorthridgePacoimaPalmsPanorama CityPico-UnionPorter RanchResedaSan PedroSherman OaksSilverlakeSouth ParkStudio CitySun ValleySylmarTarzanaTemple-BeaudryTujungaUniversity ParkValley GlenValley VillageVan NuysVeniceVermont VistaVernon CentralWattsWest AdamsWest HillsWest Los AngelesWest VernonWestchesterWestlakeWestwoodWholesale DistrictWilmingtonWilshire CenterWinnetkaWoodland HillsSelect a Geography
+- ##### Explore _Community Health Profiles_
+- Community-Specific Reports
+# Community Health Profile:
+# County of Los Angeles
+Report Generated: 9/13/2025
+Jump to Data Theme:
+DemographicsSocial Determinants of HealthPhysical Activity and NutritionTobacco UseHousing and HealthCommunity SafetyEnvironmental JusticePerinatal and Infant HealthBehavioral HealthHIV and Other Sexually Transmitted InfectionsHealthcare Access
+## Demographics
+Data Themes
+- ###### Jump to Data Theme
+- Demographics
+- Social Determinants of Health
+- Physical Activity and Nutrition
+- Tobacco Use
+- Housing and Health
+- Community Safety
+- Environmental Justice
+- Perinatal and Infant Health
+- Behavioral Health
+- HIV and Other Sexually Transmitted Infections
+- Healthcare Access
+- Top of page ↑
+Indicators included in this section:Hide ∧
+Individuals with limited English proficiency can face significant language barriers, which can make it difficult for them to navigate various social systems, such as educational institutions, or access essential services, such as health insurance, healthcare, or food assistance programs.
+Individuals with limited English proficiency can face significant language barriers that can make it difficult for them to navigate various social systems, such as educational institutions, or access essential services, such as health insurance, healthcare, or food assistance programs.
+People with disabilities have an increased risk for developing chronic health conditions, such as diabetes or heart disease. They also often spend more on healthcare costs and consequently may experience more financial hardship than those without a disability.
+Children with special healthcare needs and their families or caregivers may be at increased risk for economic hardship due to higher healthcare costs and more time needed off from work or school to attend medical appointments. In particular, children who have a disability may also be at increased risk for experiencing lower levels of social and emotional wellbeing compared to their peers who do not have a disability.
+## Demographics Indicators
+Total Population
+# 9,792,167
+100.0% of LA County
+Population Estimates (Provisional), prepared by Hedderson Demographic Services for Los Angeles County, 2022.
+Population by Age
+Population Estimates (Provisional), prepared by Hedderson Demographic Services for Los Angeles County, 2022.
+Population by Race and Ethnicity
+Population Estimates (Provisional), prepared by Hedderson Demographic Services for Los Angeles County, 2022.
+Foreign-Born Population
+US Census Bureau, American Community Survey, ACS 5-Year Estimates 2018-2022, Table DP02: Selected Social Characteristics in the United States.
+Population with Limited English Proficiency
+US Census Bureau, American Community Survey 5-Year Estimates, 2018-2022.
+Households with Limited English Proficiency
+US Census Bureau, American Community Survey 5-Year Estimates, 2018-2022.
+Adults with a Disability
+US Census Bureau, American Community Survey 5-Year Estimates, 2018-2022.
+Children with Special Healthcare Needs
+Los Angeles County Health Survey, 2023.
+## Social Determinants of Health
+Data Themes
+- ###### Jump to Data Theme
+- Demographics
+- Social Determinants of Health
+- Physical Activity and Nutrition
+- Tobacco Use
+- Housing and Health
+- Community Safety
+- Environmental Justice
+- Perinatal and Infant Health
+- Behavioral Health
+- HIV and Other Sexually Transmitted Infections
+- Healthcare Access
+- Top of page ↑
+Substantial variation in health status and health outcomes is seen across Los Angeles County. Significant determinants of this variation are the levels of education, income, and employment in the population. Also important are the degrees to which residents are socially connected and supported and the adverse health impacts of the long legacy of racism and discrimination in our society that disadvantages communities of color and other marginalized groups. These factors are collectively referred to as the social determinants of health. They encompass the conditions in which people are born, live, learn, work, play, and age, and they are the fundamental drivers for nearly all health behaviors and outcomes.
+Indicators included in this section:Hide ∧
+The life expectancy of a population is one of the most basic and important measures of the health of a community. Life expectancy is heavily driven by the social determinants of health, including social, economic, and environmental conditions, with Black and low-income individuals experiencing much lower life expectancies compared to White and more affluent individuals.
+The cumulative COVID-19 mortality rate can be used to measure the most severe impacts of COVID-19 in a community. There have been documented inequities in COVID-19 mortality rates by demographic and geographic factors. Black and Brown residents, seniors, and those living in areas with higher rates of poverty have all been disproportionally impacted.
+Self-rated health is associated with other more objective measures of health and is also a predictor for mortality. Self-rated health is also correlated with general wellbeing, an important population health outcome that integrates both mental and physical health. As is the case for nearly all health outcomes, self-rated health is heavily influenced by the social determinants of health.
+Household income is an important driver of life expectancy and other health outcomes, as individuals with higher household incomes, on average, experience better health and live longer than individuals with lower household incomes. This is largely due to increased access to opportunities, resources, and healthier living conditions that higher income individuals experience compared to lower income individuals.
+Living in poverty has a profound impact on health and wellbeing. People living in poverty are at high risk for economic hardship, housing insecurity, food insecurity, chronic stress, and inadequate access to healthcare.
+Living in poverty has a profound impact on health and wellbeing. People living in poverty are at high risk for economic hardship, housing insecurity, food insecurity, chronic stress, and inadequate access to healthcare.
+Areas of persistent poverty may have limited access to healthcare services, quality education, and healthy and affordable food. These communities may also face unique social and structural challenges that relate to poverty. Identifying areas of persistent poverty and the population living in these areas can help streamline resource allocation to communities that may benefit the most from additional investments and support.
+Educational attainment is an important driver of life expectancy, as people with higher levels of education are more likely to obtain well-paying jobs, live in safer neighborhoods, have access to quality healthcare, and engage in healthier behaviors.
+Children found to have low math skills are at increased risk for poor academic outcomes, which can have profound consequences for future health and longevity.
+Access to high-quality, affordable childcare can help provide employment stability and reduce financial hardship and parental stress. Quality childcare has also been shown to have both short- and long-term positive effects on children's cognitive, biological, and social development.
+Voter turnout is a measure of civic engagement. Consistent civic engagement can have a significant, positive impact on health outcomes and community health.
+Individuals who receive adequate social and emotional support often experience less loneliness (a risk factor for lower life expectancy) and report having a higher quality of life and better overall health.
+## Social Determinants of Health Indicators
+Life Expectancy at Birth
+Los Angeles County Annual Death File 2022 (Provisional), assembled from California Department of Public Health Vital Records Data; Population Estimates (Provisional), prepared by Hedderson Demographic Services for Los Angeles County, 2022.
+All-Cause Mortality
+Los Angeles County Annual Death File 2022 (Provisional), assembled from California Department of Public Health Vital Records Data; Population Estimates (Provisional), prepared by Hedderson Demographic Services for Los Angeles County, 2022.
+Cumulative COVID-19 Mortality
+\[1\] Los Angeles County Department of Public Health Acute Communicable Disease Control Program, COVID-19 Surveillance Data, March 1, 2020 to December 31, 2023;\[2\] 2018 Population Estimates, prepared by Hedderson Demographic Services for Los Angeles County Internal Services Department.
+Self-Rated Health Among Adults
+Los Angeles County Health Survey, 2023.
+Median Household Income
+US Census Bureau, American Community Survey 5-Year Estimates, 2018-2022.
+Population Living Below 100% of the Federal Poverty Level
+Poverty Estimates (Provisional), prepared by Hedderson Demographic Services for Los Angeles County, 2022.
+Population Living Below 200% of the Federal Poverty Level
+Poverty Estimates (Provisional), prepared by Hedderson Demographic Services for Los Angeles County, 2022.
+Children Living Below 100% of the Federal Poverty Level
+Poverty Estimates (Provisional), prepared by Hedderson Demographic Services for Los Angeles County, 2022.
+Children Living Below 200% of the Federal Poverty Level
+Poverty Estimates (Provisional), prepared by Hedderson Demographic Services for Los Angeles County, 2022.
+Population in Persistent Poverty
+US Census Bureau, Decennial Census, 1990 and 2000; US Census Bureau, American Community Survey 5-Year Estimates, 2005-2009 and 2015-2019; Population Estimates (Provisional), prepared by Hedderson Demographic Services for Los Angeles County, 2022.
+Children Enrolled in Preschool
+US Census Bureau, American Community Survey 5-Year Estimates, 2018-2022.
+3rd Graders Meeting or Exceeding California Standards for English Language Arts and Literacy
+California Department of Education, California Assessment of Student Performance and Progress System, Smarter Balanced Summative Assessments, 2022-2023.
+3rd Graders Meeting or Exceeding California Standards for Math
+California Department of Education, California Assessment of Student Performance and Progress System, Smarter Balanced Summative Assessments, 2022-2023.
+Children Whose Caregivers Report Difficulty Finding Needed Childcare
+Los Angeles County Health Survey, 2023.
+Voter Turnout in the 2020 General Election
+University of California, Berkeley, Statewide Database, 2020.
+Adults Receiving the Social and Emotional Support They Need
+Los Angeles County Health Survey, 2023.
+## Physical Activity and Nutrition
+Data Themes
+- ###### Jump to Data Theme
+- Demographics
+- Social Determinants of Health
+- Physical Activity and Nutrition
+- Tobacco Use
+- Housing and Health
+- Community Safety
+- Environmental Justice
+- Perinatal and Infant Health
+- Behavioral Health
+- HIV and Other Sexually Transmitted Infections
+- Healthcare Access
+- Top of page ↑
+Increasing physical activity and improving diets are two important ways to better the health of community residents. Physical inactivity and poor diet have contributed to our current obesity epidemic and are major risk factors for heart disease, diabetes, cancer, and many other chronic health conditions. Being physically active and eating healthy are often considered lifestyle choices that are under individual control, but in reality, these "choices" are strongly influenced by community environments. For example, it is difficult for people to be physically active if their communities do not have available and safe places for recreation. Likewise, it is very challenging for people to have a healthy diet if they have limited access to nutritious and affordable food options. Cities and communities can organize to create environments that promote active living and healthy eating. For example, they can implement community-wide campaigns with calls to action and community supports, such as park prescription programs or after-school physical activity programs. They can also make streets more accommodating for walking and biking, and they can create incentives for healthy food retail.
+Indicators included in this section:Hide ∧
+Aerobic Physical Activity Criteria:
+1) Vigorous activity for at least 75 minutes a week
+2) Moderate activity for at least 150 minutes a week
+3) Combination of vigorous and moderate activity for at least 150 minutes a week
+Muscle-Strengthening Physical Activity Criterion:
+Exercise all major muscle groups on 2 or more days a week
+Physical inactivity contributes to our current obesity epidemic and is a major risk factor for heart disease, diabetes, cancer, and many other chronic health conditions. It can be difficult for people to be physically active if their communities do not have available and safe places for recreation.
+It can be very challenging for people to have a healthy diet if community access to nutritious and affordable food options is limited.
+Sugar-sweetened beverages or sugary drinks are leading sources of added sugars in the American diet. Frequently drinking sugar-sweetened beverages is associated with weight gain, obesity, type 2 diabetes, heart disease, and kidney diseases, among other conditions. Cities and communities can take an active role in limiting sugar-sweetened beverage consumption by promoting health education and awareness, adopting policies such as additional taxes on sugar-sweetened beverage purchases, and by supporting healthy food retail.
+Sugar-sweetened beverages or sugary drinks are leading sources of added sugars in the American diet. Frequently drinking sugar-sweetened beverages is associated with weight gain, obesity, type 2 diabetes, heart disease, and kidney diseases, among other conditions. Cities and communities can take an active role in limiting sugar-sweetened beverage consumption by promoting health education and awareness, adopting policies such as additional taxes on sugar-sweetened beverage purchases, and by supporting healthy food retail.
+Easy community access to fresh fruits and vegetables is fundamental to promoting a healthy food environment.
+Fast food consumption is associated with increased intake of calories, fat, and sodium, as well as with poor diet quality in children and adolescents. Poor diet has contributed to our current obesity epidemic and is a major risk factor for heart disease, diabetes, cancer, and many other chronic health conditions.
+Charitable food distribution sites serve as vital community resources for households struggling with food insecurity.
+Obesity is associated with increased risk for heart disease, diabetes, and cancer. Cities and communities can help curb the current obesity epidemic by adopting policies that support healthy food retail and physical activity and improve access to preventive care services.
+Diabetes is associated with decreased life expectancy, heart disease and stroke, lower limb amputations, kidney disease, and blindness. It is also closely linked with obesity. Cities and communities can help prevent diabetes by adopting policies that support healthy food retail and physical activity and improve access to preventive care services.
+Uncontrolled hypertension, or high blood pressure, increases an individual's risk for heart attack, stroke, and kidney disease, and it can also impair brain function and vision. Lifestyle factors such as unhealthy diets, physical inactivity, smoking, and excessive alcohol use contribute greatly to this condition. Cities and communities can play an essential role in mitigating hypertension risk factors by improving local food environments and encouraging physical activity by making communities safer and more walkable.
+Being physically active and eating a diet that is rich in fruits, vegetables, lean meats, and fiber can reduce the risk of colorectal cancer. Promoting healthy food retail and access to preventive care services are important measures that cities and communities can take to prevent colorectal cancer.
+Obesity can increase an individual's lifetime risk of breast cancer. Promoting healthy food retail and physical activity and improving access to preventive care services are important measures that cities and communities can take to prevent breast cancer.
+## Physical Activity and Nutrition Indicators
+Recreational Spaces
+County of Los Angeles
+Recreational Spaces
+GreenInfo Network, California Protected Areas Database, 2023; County of Los Angeles, Countywide Parks and Open Space Dataset, 2023; Trust for Public Land, ParkServe® Dataset, 2023.
+Recreational Space per Capita
+GreenInfo Network, California Protected Areas Database, 2023; County of Los Angeles, Countywide Parks and Open Space Dataset, 2023; Trust for Public Land, ParkServe® Dataset, 2023; Population Estimates (Provisional), prepared by Hedderson Demographic Service
+Population Within 10-Minute Walk of a Recreational Space
+GreenInfo Network, California Protected Areas Database, 2023; County of Los Angeles, Countywide Parks and Open Space Dataset, 2023; Trust for Public Land, ParkServe® Dataset, 2023; Population Estimates (Provisional), prepared by Hedderson Demographic Service
+Adults Meeting the Recommended Guidelines for Physical Activity
+Los Angeles County Health Survey, 2023.
+Adults Meeting the Recommended Guidelines for Fruit and Vegetable Intake
+Los Angeles County Health Survey, 2023.
+Children with Daily Sugar-Sweetened Beverage Consumption
+Los Angeles County Health Survey, 2023.
+Adults with Daily Sugar-Sweetened Beverage Consumption
+Los Angeles County Health Survey, 2023.
+Children with Good or Excellent Community Access to Fresh Fruits and Vegetables
+Los Angeles County Health Survey, 2023.
+Children with Weekly Fast Food Consumption
+Los Angeles County Health Survey, 2023.
+Population in Close Proximity to a Supermarket or Grocery Store
+US Department of Agriculture, Food Access Research Atlas, 2019; US Census Bureau, Decennial Census, 2010.
+Farmers' Markets
+County of Los Angeles
+Farmers' Markets
+211LA Food Resources, prepared by the Los Angeles County Department of Public Health Nutrition and Physical Activity Program, May 2023; US Department of Agriculture, Food and Nutrition Service, Farmers Markets Accepting SNAP Benefits, December 2022.
+Charitable Food Distribution Sites
+County of Los Angeles
+Charitable Food Distribution Sites
+211LA Food Resources, prepared by the Los Angeles County Department of Public Health Nutrition and Physical Activity Program, May 2023.
+Population in Households with Food Insecurity
+Los Angeles County Health Survey, 2023.
+Adults in Households with Food Insecurity
+Los Angeles County Health Survey, 2023.
+Children in Households with Food Insecurity
+Los Angeles County Health Survey, 2023.
+Adults in Households with Nutrition Insecurity
+Los Angeles County Health Survey, 2023.
+Adults with Obesity
+Los Angeles County Health Survey, 2023.
+Adults with Diagnosed Diabetes
+Los Angeles County Health Survey, 2023.
+Adults with Diagnosed Hypertension
+Los Angeles County Health Survey, 2023.
+Coronary Heart Disease Mortality
+Los Angeles County Annual Death Files 2018-2021 and 2022 (Provisional), assembled from California Department of Public Health Vital Records Data; Population Estimates, prepared by Hedderson Demographic Services for Los Angeles County, 2020.
+Colorectal Cancer Mortality
+Los Angeles County Annual Death Files 2018-2021 and 2022 (Provisional), assembled from California Department of Public Health Vital Records Data; Population Estimates, prepared by Hedderson Demographic Services for Los Angeles County, 2020.
+Breast Cancer Mortality
+Los Angeles County Annual Death Files 2018-2021 and 2022 (Provisional), assembled from California Department of Public Health Vital Records Data; Population Estimates, prepared by Hedderson Demographic Services for Los Angeles County, 2020.
+## Tobacco Use
+Data Themes
+- ###### Jump to Data Theme
+- Demographics
+- Social Determinants of Health
+- Physical Activity and Nutrition
+- Tobacco Use
+- Housing and Health
+- Community Safety
+- Environmental Justice
+- Perinatal and Infant Health
+- Behavioral Health
+- HIV and Other Sexually Transmitted Infections
+- Healthcare Access
+- Top of page ↑
+Despite great progress in reducing tobacco use over the past generation, almost one million adults and adolescents in Los Angeles County continue to smoke. Tobacco use is a leading preventable cause of premature death and disability. Some communities and populations in the County have much higher rates of tobacco use than others, fueled in part by the marketing tactics of the tobacco industry that target certain communities, including communities of color and the lesbian, gay, bisexual, transgender, and queer communities. Cities and communities can play a vital role in supporting public health efforts to reduce the toll of smoking and other forms of tobacco use. Many cities and all unincorporated communities in Los Angeles County already prohibit smoking in public spaces, such as parks, beaches, and outdoor dining areas. In addition, many cities prohibit smoking in multi-unit housing complexes, such as apartment buildings, to reduce exposure to secondhand smoke. Cities and communities can take additional action to reduce youth access to tobacco products by promoting zoning and licensing restrictions to regulate the location and density of tobacco retailers and vape shops, particularly in youth-sensitive areas and vulnerable neighborhoods.
+Indicators included in this section:Hide ∧
+Tobacco use is a leading preventable cause of premature death and disability. Cities and communities can curb tobacco use by adopting policies to regulate tobacco retail and reduce exposure to secondhand smoke in outdoor public spaces, such as parks, restaurants, or in multi-unit housing.
+Lung cancer is a leading cause of cancer-related death in the US. People who smoke have the greatest risk of lung cancer, though lung cancer can also occur in people who have never smoked. Most cases are due to long-term tobacco smoking or exposure to secondhand tobacco smoke. Cities and communities can take an active role in curbing tobacco use and reducing lung cancer by adopting policies to regulate tobacco retail; reducing exposure to secondhand smoke in outdoor public spaces, such as parks, restaurants, or in multi-unit housing; and improving access to tobacco cessation programs and other preventive services.
+COPD refers to a group of diseases, including emphysema and chronic bronchitis, that create airflow blockages in the lungs. Exposure to tobacco smoke is an important risk factor for COPD. Cities and communities can take an active role in curbing tobacco use and reducing COPD by adopting policies to regulate tobacco retail; reducing exposure to secondhand smoke in outdoor public spaces, such as parks, restaurants, or in multi-unit housing; and improving access to tobacco cessation programs and other preventive services.
+## Tobacco Use Indicators
+Adults Who Smoke Cigarettes
+Los Angeles County Health Survey, 2023.
+Adults Who Use Electronic Cigarettes
+Los Angeles County Health Survey, 2023.
+Lung Cancer Mortality
+Los Angeles County Annual Death Files 2018-2021 and 2022 (Provisional), assembled from California Department of Public Health Vital Records Data; Population Estimates, prepared by Hedderson Demographic Services for Los Angeles County, 2020.
+Chronic Obstructive Pulmonary Disease Mortality
+Los Angeles County Annual Death Files 2018-2021 and 2022 (Provisional), assembled from California Department of Public Health Vital Records Data; Population Estimates, prepared by Hedderson Demographic Services for Los Angeles County, 2020.
+## Housing and Health
+Data Themes
+- ###### Jump to Data Theme
+- Demographics
+- Social Determinants of Health
+- Physical Activity and Nutrition
+- Tobacco Use
+- Housing and Health
+- Community Safety
+- Environmental Justice
+- Perinatal and Infant Health
+- Behavioral Health
+- HIV and Other Sexually Transmitted Infections
+- Healthcare Access
+- Top of page ↑
+Indicators included in this section:Hide ∧
+Overcrowded housing is a marker for affordable housing availability, and it remains a significant challenge throughout Los Angeles County. Living in overcrowded housing units is associated with a wide array of negative health outcomes, including poor mental health and stress, developmental delays in children, and increased risk of communicable disease transmission. Low-income and immigrant communities are often disproportionately impacted by overcrowded housing. Cities and communities can mitigate overcrowded housing by adopting policies that permit the expansion of affordable housing stock and provide assistance to low-income individuals and families in securing safe housing.
+Overcrowded and severely overcrowded housing are markers for affordable housing availability, and they remain a significant challenge throughout Los Angeles County. Living in overcrowded or severely overcrowded housing units is associated with a wide array of negative health outcomes, including poor mental health and stress, developmental delays in children, and increased risk of communicable disease transmission. Low-income and immigrant communities are often disproportionately impacted by overcrowded and severely overcrowded housing. Cities and communities can mitigate overcrowded housing by adopting policies that permit the expansion of affordable housing stock and provide assistance to low-income individuals and families in securing safe housing.
+Living in poor quality housing can increase exposure to environmental hazards, such as lead, molds, and cockroaches. Exposure to molds and cockroaches can worsen underlying respiratory conditions such as asthma in children.
+## Housing and Health Indicators
+Households with Housing Burden
+US Census Bureau, American Community Survey 5-Year Estimates, 2018-2022.
+Households with Severe Housing Burden
+US Census Bureau, American Community Survey 5-Year Estimates, 2018-2022.
+Overcrowded Housing Units
+US Census Bureau, American Community Survey 5-Year Estimates, 2018-2022.
+Severely Overcrowded Housing Units
+US Census Bureau, American Community Survey 5-Year Estimates, 2018-2022.
+US Census Bureau, American Community Survey 5-Year Estimates, 2018-2022.
+US Census Bureau, American Community Survey 5-Year Estimates, 2018-2022.
+County of Los Angeles
+US Census Bureau, American Community Survey 5-Year Estimates, 2018-2022.
+County of Los Angeles
+US Census Bureau, American Community Survey 5-Year Estimates, 2018-2022.
+Children Ever Diagnosed with Asthma
+Los Angeles County Health Survey, 2023.
+## Community Safety
+Data Themes
+- ###### Jump to Data Theme
+- Demographics
+- Social Determinants of Health
+- Physical Activity and Nutrition
+- Tobacco Use
+- Housing and Health
+- Community Safety
+- Environmental Justice
+- Perinatal and Infant Health
+- Behavioral Health
+- HIV and Other Sexually Transmitted Infections
+- Healthcare Access
+- Top of page ↑
+Neighborhood violence and crime can harm all members of a community, and when firearms are involved in a violent incident, the risk of death or severe injury increases. Living in communities with high rates of violence and crime not only exposes residents to a greater personal risk of injury or death, but it can also render individuals more susceptible to many adverse health outcomes. People who are regularly exposed to violence and crime are more likely to suffer from chronic stress, depression, anxiety, and other mental health conditions. They are also less likely to be able to use their parks and neighborhoods for recreation and physical activity. In Los Angeles County, communities of color and low-income neighborhoods are disproportionately impacted by neighborhood violence and crime. Due to historical oppression, racism, and discrimination, people of color are often not provided the same opportunities and resources needed for individuals, including youth and families, to thrive.
+Indicators included in this section:Hide ∧
+Living in communities with high rates of violence and crime not only exposes residents to a greater personal risk of injury or death, but it can also render individuals more susceptible to many adverse health outcomes. People who are regularly exposed to violence and crime are more likely to suffer from chronic stress, depression, anxiety, and other mental health conditions. They are also less likely to be able to use their parks and neighborhoods for recreation and physical activity.
+Parks, playgrounds, and other safe places are vital community assets that provide spaces where children can engage in physical activity and build critical cognitive, social, and emotional skills through peer interactions and play. They also serve as spaces where all members of a community can gather and socialize, thereby promoting community cohesion.
+Neighborhood violence and crime can have a harmful impact on all members of a community. Living in communities with high rates of violence and crime not only exposes residents to a greater personal risk of injury or death, but it can also render individuals more susceptible to many adverse health outcomes. People who are regularly exposed to violence and crime are more likely to suffer from chronic stress, depression, anxiety, and other mental health conditions. They are also less likely to be able to use their parks and neighborhoods for recreation and physical activity.
+Violence is a public health crisis in the US, with gun violence being a major driver. Almost three quarters of homicides involve firearms. In the US, the age-adjusted homicide rate from firearms is more than 20 times higher than in the European Union or in Australia. Significant disparities by age, sex, and race and ethnicity exist, with young adults ages 15-34 years, males, and Black individuals most disproportionately impacted. Comprehensive prevention strategies should work to address the underlying physical, social, economic, and structural conditions known to increase risk.
+Violence is a public health crisis in the US, with gun violence being a major driver. In the US, the age-adjusted homicide rate from firearms is more than 20 times higher than in the European Union or in Australia. Significant disparities by age, sex, and race and ethnicity exist, with young adults (ages 15- 34 years), males, and Black individuals most disproportionately impacted. Firearm-related suicides disproportionately impact older, White men. Comprehensive prevention strategies should work to address underlying physical, social, economic, and structural conditions known to increase risk.
+## Community Safety Indicators
+Adults Reporting Their Neighborhood is Safe from Crime
+Los Angeles County Health Survey, 2023.
+Children with Easy Access to a Safe Place to Play
+Los Angeles County Health Survey, 2023.
+Violent Crime Rate
+California Attorney General, Crimes and Clearances, 2018-2022; Los Angeles Police Department, Crime Data from 2010-2019 and 2020-Present, 2018-2022; Los Angeles County Sheriff's Department, Historical Crime Data, 2018-2022; Population Estimates, prepared by Hedderson Demog
+Homicide Rate
+Los Angeles County Annual Death Files 2018-2021 and 2022 (Provisional), assembled from California Department of Public Health Vital Records Data; Population Estimates, prepared by Hedderson Demographic Services for Los Angeles County, 2020.
+Firearm Mortality
+Los Angeles County Annual Death Files 2018-2021 and 2022 (Provisional), assembled from California Department of Public Health Vital Records Data; Population Estimates, prepared by Hedderson Demographic Services for Los Angeles County, 2020.
+## Environmental Justice
+Data Themes
+- ###### Jump to Data Theme
+- Demographics
+- Social Determinants of Health
+- Physical Activity and Nutrition
+- Tobacco Use
+- Housing and Health
+- Community Safety
+- Environmental Justice
+- Perinatal and Infant Health
+- Behavioral Health
+- HIV and Other Sexually Transmitted Infections
+- Healthcare Access
+- Top of page ↑
+Indicators included in this section:Hide ∧
+Living near an oil refinery can pose health risks due to emissions and pollutants released into the air and water. Understanding the health risks related to oil refineries is important so that individuals and policymakers can advocate for cleaner and safer living environments for nearby communities.
+Gas storage sites are important for the supply and distribution of natural gas. Although gas storage sites have been designed to minimize risks and ensure the safety of the community, persons living or working nearby should be aware of the potential for gas leaks, fire and explosion hazards, or groundwater contamination. Nearby communities should be aware of the facility, understand the potential risk, and be prepared in case of emergency. If not properly managed, plugged gas storage sites can still have significant environmental and health impacts.
+Sites listed on the NPL are among the most contaminated in the US. By addressing the environmental and health risks, site cleanup reduces exposure to harmful substances and promotes the wellbeing of the community.
+## Environmental Justice Indicators
+Oil and Gas Wells
+County of Los Angeles
+Oil and Gas Wells
+Department of Conservation, Geologic Energy Management Division, Oil and Gas Wells Table, California, June 2023.
+Petroleum Refineries
+County of Los Angeles
+Petroleum Refineries
+Underground Gas Storage Sites
+County of Los Angeles
+Underground Gas Storage Sites
+National Priorities List Sites
+County of Los Angeles
+National Priorities List Sites
+Environmental Protection Agency, National Priorities List, June 2023.
+Toxics Release Inventory Sites
+County of Los Angeles
+Toxics Release Inventory Sites
+Environmental Protection Agency, Toxics Release Inventory Facilities in Los Angeles County, 2021.
+Tree Canopy Coverage
+Public Health Alliance of Southern California, Tree Canopy Coverage in Los Angeles County, California, 2023.
+Motor Vehicle Crash Mortality
+Los Angeles County Annual Death Files 2018-2021 and 2022 (Provisional), assembled from California Department of Public Health Vital Records Data; Population Estimates, prepared by Hedderson Demographic Services for Los Angeles County, 2020.
+## Perinatal and Infant Health
+Data Themes
+- ###### Jump to Data Theme
+- Demographics
+- Social Determinants of Health
+- Physical Activity and Nutrition
+- Tobacco Use
+- Housing and Health
+- Community Safety
+- Environmental Justice
+- Perinatal and Infant Health
+- Behavioral Health
+- HIV and Other Sexually Transmitted Infections
+- Healthcare Access
+- Top of page ↑
+Perinatal and infant health outcomes, including preterm birth, low birthweight births, infant deaths, and maternal mortality, are among the most important measures of the health of a community. Babies born preterm or at a low birthweight are at markedly increased risk for a range of medical complications that can impair their development and reduce their prospects for a long and healthy life. Infant and maternal deaths are among the most tragic health events in a community, and sadly, they occur at a much greater frequency in some communities than in others. For example, Black babies in Los Angeles County die at more than three times the rate of White or Asian babies. Black pregnant and postpartum people are also at three times the risk of death when compared to their White counterparts. This racial inequity is not entirely explained by differences in access to prenatal care or levels of education and income. Research suggests that chronic stress associated with both historical and ongoing racism are important contributing factors. Cities and communities can play an important role in addressing these inequities in perinatal and infant health outcomes by examining their policies and practices with a racial equity lens, thereby ensuring that all groups have the opportunities and resources needed to achieve optimal health.
+Indicators included in this section:Hide ∧
+Early initiation of prenatal care is an important factor in preventing poor maternal and newborn outcomes.
+Infants born before 37 weeks of gestation have a higher risk of infections, developmental problems, breathing problems, and even death. Preterm births are more common in certain racial and ethnic groups, with Black pregnant persons experiencing preterm births more frequently than Whites. Chronic stress associated with both historical and ongoing racism are important contributing factors. Strategies to reduce preterm births include promoting adequate birth spacing, helping pregnant people quit smoking, and providing high-quality medical care during pregnancy.
+Babies born at a low birth weight are at markedly increased risk for a range of medical complications that can impair their development and reduce their prospects for a long and healthy life.
+Infant deaths are among the most tragic health events in a community, and sadly, they occur at a much greater frequency in some communities than in others. Chronic stress associated with both historical and ongoing racism are important contributing factors. Cities and communities can play an important role in addressing these inequities in reproductive health outcomes by examining their policies and practices with a racial equity lens, ensuring that all groups have the opportunities and resources needed to achieve optimal health.
+Compared to other high-income countries, women in the US are more likely to die from childbirth or problems related to pregnancy. In addition, there are persistent disparities by race and ethnicity, with Black pregnant persons experiencing a much higher rate of maternal mortality compared to White pregnant persons. Improving the quality of medical care for pregnant individuals before, during, and after pregnancy can help reduce maternal deaths.
+## Perinatal and Infant Health Indicators
+First Trimester Prenatal Care Initiation
+Los Angeles County Annual Birth File 2022, assembled from California Department of Public Health Vital Records Data.
+Preterm Births
+Los Angeles County Annual Birth Files 2018-2022, assembled from California Department of Public Health Vital Records Data.
+Low Birthweight Births
+Los Angeles County Annual Birth Files 2018-2022, assembled from California Department of Public Health Vital Records Data.
+Infant Mortality
+Los Angeles County Annual Birth and Death Files 2018-2022 (Provisional for 2022 Death File), assembled from California Department of Public Health Vital Records Data, Office of Health Assessment & Epidemiology, Los Angeles County Department of Public Health, 2022.
+Maternal Mortality
+Los Angeles County Annual Birth and Death Files 2018-2022 (Provisional for 2022 Death File), assembled from California Department of Public Health Vital Records Data, Office of Health Assessment & Epidemiology, Los Angeles County Department of Public Health.
+## Behavioral Health
+Data Themes
+- ###### Jump to Data Theme
+- Demographics
+- Social Determinants of Health
+- Physical Activity and Nutrition
+- Tobacco Use
+- Housing and Health
+- Community Safety
+- Environmental Justice
+- Perinatal and Infant Health
+- Behavioral Health
+- HIV and Other Sexually Transmitted Infections
+- Healthcare Access
+- Top of page ↑
+When people experience emotional, psychological, and social wellbeing, they are better positioned to thrive and reach their full potential. Unfortunately, many people face chronic stress and significant life challenges related to financial insecurity, work and family pressures, job instability, unsafe living environments, social isolation, and discrimination. These factors can increase the risk for developing substance use disorders and/or mental health conditions, such as depression, anxiety, or post-traumatic stress disorder. Having a behavioral health condition, including both mental health conditions and substance use disorders, not only affects an individual's overall wellbeing but also raises the risk of suicide or fatal drug overdoses.
+While ensuring access to timely and affordable evidence-based interventions and services is important for effectively treating behavioral health conditions, promoting wellbeing at the community level can help prevent these conditions from developing in the first place. Cities and communities can take an active role in fostering behavioral health and overall wellbeing by ensuring community safety, promoting employment opportunities and economic security, expanding affordable housing, engaging with community members around the issues that matter to them most, reducing the stigma associated with mental illness and substance use disorder, and providing support services, particularly for seniors and other vulnerable community members.
+Indicators included in this section:Hide ∧
+In general, consumption of alcohol tends to be higher in communities where the alcohol outlet density is also high. Communities with higher alcohol outlet density have been found to experience higher rates of violence and crime.
+In general, consumption of alcohol tends to be higher in communities where the alcohol outlet density is also high. Communities with higher alcohol outlet density have been found to experience higher rates of violence and crime.
+There is growing recognition that mental health is as essential to overall wellbeing as physical health. Individuals who are exposed to chronic stress from financial worry, work and family demands, job insecurity, unsafe living environments, social isolation, or discrimination are at a greater risk for developing mental health conditions, such as depression, anxiety, or post-traumatic stress disorder. Cities and communities can take an active role in fostering mental health by ensuring community safety, promoting equitable employment opportunities and economic security, expanding affordable housing, creating varied opportunities for residents to engage in community issues, reducing the stigma associated with mental health, and providing support services, particularly for seniors and other vulnerable community members.
+Drug overdose deaths have increased dramatically in the US over the past two decades. The first wave of deaths in the 1990s largely involved prescription opioids and was a consequence of increased prescribing of these drugs by medical providers. In the second wave that began in 2010, there was a rapid increase in the number of deaths involving heroin and, in the current wave that started in 2013, there has been a rise in the number of overdose deaths involving synthetic opioids, particularly illicitly manufactured fentanyl, which can be found in combination with heroin, counterfeit pills, cocaine, and other drugs. In Los Angeles County in recent years, the vast majority of all drug overdose deaths have involved fentanyl. Important inequities have been noted by sociodemographic characteristics, with low-income and Black individuals found to have the highest overdose death rates. Cities and communities can take an active role in preventing overdose deaths by promoting primary prevention and supporting evidence-based harm reduction and treatment strategies.
+Suicide is a leading cause of preventable death in Los Angeles County, affecting individuals of all ages and races and ethnicities. While there is a strong association between suicide and health conditions, such as mood and anxiety disorders or substance use disorders, suicide is rarely caused by a single circumstance and is more often due to a combination of individual, relational, and environmental factors. Individual factors can include history of mental illness, previous suicide attempts, adverse childhood events, or financial hardship. Relational factors include experiences of bullying, loss of relationships, or social isolation. Environmental factors include lack of access to healthcare, community violence, or social stigma associated with seeking help for a mental illness.
+## Behavioral Health Indicators
+On-Premises Alcohol Outlet Density
+California Department of Alcoholic Beverage Control, Active alcoholic beverage licenses for FY21-22, June 2022; Population Estimates (Provisional), prepared by Hedderson Demographic Services for Los Angeles County, 2022.
+Off-Premises Alcohol Outlet Density
+California Department of Alcoholic Beverage Control, Active alcoholic beverage licenses for FY21-22, June 2022; Population Estimates (Provisional), prepared by Hedderson Demographic Services for Los Angeles County, 2022.
+Marijuana Storefront Retailer Density
+California Department of Cannabis Control, September 2023 (for data on licensed storefronts); Weedmaps, May 2023 (for data on unlicensed storefronts); Leafly, May 2023 (for data on unlicensed storefronts); Los Angeles County Office of Cannabis Management, May 2023 (for data on unlicensed storefronts); Population Estimates (Provisional), prepared by Hedderson Demographic Services for Los Angeles County, 2022..
+Adults Who Use Alcohol
+Los Angeles County Health Survey, 2023.
+Adults Who Binge Drink
+Los Angeles County Health Survey, 2023.
+Adults Who Use Marijuana
+Los Angeles County Health Survey, 2023.
+Adults with Diagnosed Depression
+Los Angeles County Health Survey, 2023.
+Drug Overdose Mortality
+Los Angeles County Annual Death Files 2018-2021 and 2022 (Provisional), assembled from California Department of Public Health Vital Records Data; Population Estimates, prepared by Hedderson Demographic Services for Los Angeles County, 2020.
+Suicide Rate
+Los Angeles County Annual Death Files 2018-2021 and 2022 (Provisional), assembled from California Department of Public Health Vital Records Data; Population Estimates, prepared by Hedderson Demographic Services for Los Angeles County, 2020.
+## HIV and Other Sexually Transmitted Infections
+Data Themes
+- ###### Jump to Data Theme
+- Demographics
+- Social Determinants of Health
+- Physical Activity and Nutrition
+- Tobacco Use
+- Housing and Health
+- Community Safety
+- Environmental Justice
+- Perinatal and Infant Health
+- Behavioral Health
+- HIV and Other Sexually Transmitted Infections
+- Healthcare Access
+- Top of page ↑
+Indicators included in this section:Hide ∧
+In recent years, Los Angeles County has experienced a steady increase in the rates of sexually transmitted infections (STIs), including syphilis, a trend that has also been seen nationally. Untreated syphilis infection can cause damage to the heart, brain, eyes, ears, and other organs in the body, leading to serious illness or even death. As with other STIs, syphilis rates are much higher in some communities than in others, with low-income communities, communities of color, and gay, bisexual, and transgender communities most severely impacted. Cities, community organizations, faith-based institutions, and businesses can play an important role in supporting efforts to prevent these infections. For example, they can help promote sexual health education campaigns, support condom distribution programs, and foster efforts to reduce stigmatization of and discrimination against groups most at risk of these infections. In addition, community providers can help by assisting at-risk groups in accessing prevention programs, testing, and treatment services, including partner notification and treatment.
+In recent years, Los Angeles County has experienced a steady increase in the rates of sexually transmitted infections (STIs), including congenital syphilis, a trend that has also been seen nationally. Congenital syphilis is a serious and often life-threatening condition that can develop in infants whose mothers are not fully treated for syphilis. As with other STIs, congenital syphilis rates are much higher in some communities than in others, with low-income communities and communities of color most severely impacted. Cities, community organizations, faith-based institutions, and businesses can play an important role in supporting efforts to prevent these infections. For example, they can help promote sexual health education campaigns, support condom distribution programs, and foster efforts to reduce stigmatization of and discrimination against groups most at risk of these infections. In addition, community providers can help by assisting at-risk groups in accessing prevention programs, testing, and treatment services, including partner notification and treatment.
+In recent years, Los Angeles County has experienced a steady increase in the rates of sexually transmitted infections (STIs), including gonorrhea, a trend that has also been seen nationally. A common STI, gonorrhea can cause permanent damage to the reproductive system of childbearing people and can even cause potentially fatal ectopic pregnancy. Untreated gonorrhea infection can also increase the risk of acquiring or transmitting HIV. As with other STIs, gonorrhea rates are much higher in some communities than in others, with low-income communities, communities of color, and gay, bisexual, and transgender communities most severely impacted. Cities, community organizations, faith-based institutions, and businesses can play an important role in supporting efforts to prevent these infections. For example, they can help promote sexual health education campaigns, support condom distribution programs, and foster efforts to reduce stigmatization of and discrimination against groups most at risk of these infections. In addition, community providers can help by assisting at-risk groups in accessing prevention programs, testing, and treatment services, including partner notification and treatment.
+In recent years, Los Angeles County has experienced a steady increase in the rates of sexually transmitted infections (STIs), including chlamydia, a trend that has also been seen nationally. A common STI, chlamydia can cause permanent damage to the reproductive system of childbearing people and can even cause potentially fatal ectopic pregnancy. Untreated chlamydia infection can also increase the risk of acquiring or transmitting HIV. As with other STIs, chlamydia rates are much higher in some communities than in others, with low-income communities, communities of color, and gay, bisexual, and transgender communities most severely impacted. Cities, community organizations, faith-based institutions, and businesses can play an important role in supporting efforts to prevent these infections. For example, they can help promote sexual health education campaigns, support condom distribution programs, and foster efforts to reduce stigmatization of and discrimination against groups most at risk of these infections. In addition, community providers can help by assisting at-risk groups in accessing prevention programs, testing, and treatment services, including partner notification and treatment.
+## HIV and Other Sexually Transmitted Infections Indicators
+Early Syphilis Rate
+Los Angeles County Department of Public Health, Sexually Transmitted Disease Surveillance System, 2021; Population Estimates (Provisional), prepared by Hedderson Demographic Services for Los Angeles County, 2021.
+Congenital Syphilis Rate
+Los Angeles County Department of Public Health, Sexually Transmitted Disease Surveillance System, 2019-2021; Los Angeles County Annual Birth Files 2019-2021, assembled from California Department of Public Health Vital Records Data.
+Gonorrhea Rate
+Los Angeles County Department of Public Health, Sexually Transmitted Disease Surveillance System, 2021; Population Estimates (Provisional), prepared by Hedderson Demographic Services for Los Angeles County, 2021.
+Chlamydia Rate
+Los Angeles County Department of Public Health, Sexually Transmitted Disease Surveillance System, 2021; Population Estimates (Provisional), prepared by Hedderson Demographic Services for Los Angeles County, 2021.
+Persons Living with Diagnosed HIV
+Los Angeles County Department of Public Health, HIV Surveillance System, 2022; Population Estimates (Provisional), prepared by Hedderson Demographic Services for Los Angeles County, 2022.
+## Healthcare Access
+Data Themes
+- ###### Jump to Data Theme
+- Demographics
+- Social Determinants of Health
+- Physical Activity and Nutrition
+- Tobacco Use
+- Housing and Health
+- Community Safety
+- Environmental Justice
+- Perinatal and Infant Health
+- Behavioral Health
+- HIV and Other Sexually Transmitted Infections
+- Healthcare Access
+- Top of page ↑
+The vast majority of adults and children in Los Angeles County have health insurance, in large part due to outreach efforts and local insurance availability for children and the expansion of insurance coverage following the passage of the federal Affordable Care Act in 2012. Despite this progress, rates of uninsured remain high in some communities, particularly among low-income Latinos. Even among people who have health insurance, many continue to experience difficulty obtaining needed healthcare. In addition, many adults and children do not have access to essential dental or mental health services. Cities and community organizations can play an important role in advocating for needed services and in providing information on free or low-cost services in their communities. Hospitals can also provide medical, dental, and mental health services through their community benefit programs and other community services.
+Indicators included in this section:Hide ∧
+The vast majority of adults and children in Los Angeles County have health insurance, in large part due to outreach efforts and local insurance availability for children and the expansion of insurance coverage following the passage of the federal Affordable Care Act in 2012. Despite this progress, rates of uninsured remain high in some communities. Cities and community organizations can play an important role in advocating for needed services and in providing information on free or low-cost services in their communities. Hospitals can also provide medical and dental services through their community benefit programs and other community services.
+The vast majority of adults and children in Los Angeles County have health insurance, in large part due to outreach efforts and local insurance availability for children and the expansion of insurance coverage following the passage of the federal Affordable Care Act in 2012. Despite this progress, rates of uninsured remain high in some communities. Cities and community organizations can play an important role in advocating for needed services and in providing information on free or low-cost services in their communities. Hospitals can also provide medical and dental services through their community benefit programs and other community services.
+The vast majority of adults and children in Los Angeles County have health insurance, in large part due to outreach efforts and local insurance availability for children and the expansion of insurance coverage following the passage of the federal Affordable Care Act in 2012. Despite this progress, rates of uninsured remain high in some communities. Even among people who have health insurance, many continue to experience difficulties accessing needed healthcare. Cities and community organizations can play an important role in advocating for needed services and in providing information on free or low-cost services in their communities. Hospitals can also provide medical and dental services through their community benefit programs and other community services.
+Medi-Cal is California's Medicaid health insurance program. It is an important program that provides health insurance coverage for qualifying low-income individuals, families with children, seniors, persons with disabilities, pregnant persons, and low-income people with specific health conditions (e.g., tuberculosis, breast cancer, or HIV/AIDS). It is supported by federal and state taxes.
+Medi-Cal is California's Medicaid health insurance program. It is an important program that provides health insurance coverage for qualifying low-income individuals, families with children, seniors, persons with disabilities, pregnant persons, and low-income people with specific health conditions (e.g., tuberculosis, breast cancer, or HIV/AIDS). It is supported by federal and state taxes.
+State Primary Care Offices submit applications to HRSA to designate specific areas within counties as MUA/Ps. The MUA/P designation is made using the Index of Medical Underservice (IMU) score, which ranges from 0-100. Lower scores indicate higher needs. An IMU score of 62 or below qualifies for designation as an MUA/P. MUA/P designations help establish health maintenance organizations or community health centers in high-need areas. Note: if an area is not designated as an MUA/P, it does not mean it is not underserved, only that an application has not been filed for the area and that official designation has not been given.
+## Healthcare Access Indicators
+Uninsured Children
+US Census Bureau, American Community Survey 5-Year Estimates, 2018-2022.
+Uninsured Adults
+US Census Bureau, American Community Survey 5-Year Estimates, 2018-2022.
+Adults with Difficulty Obtaining Needed Medical Care
+Los Angeles County Health Survey, 2023.
+Children with Medi-Cal
+US Census Bureau, American Community Survey 5-Year Estimates, 2018-2022.
+Adults with Medi-Cal
+US Census Bureau, American Community Survey 5-Year Estimates, 2018-2022.
+Medically Underserved Areas/Populations
+County of Los Angeles
+Medically Underserved Areas/Populations
+Health Resources and Services Administration, Medically Underserved Areas/Populations, April 2023.
+Health Professional Shortage Area: Primary Care
+County of Los Angeles
+Health Professional Shortage Area: Primary Care
+Health Resources and Services Administration, Health Professional Shortage Area: Primary Care, April 2023.
+Health Professional Shortage Area: Dental Health
+County of Los Angeles
+Health Professional Shortage Area: Dental Health
+Health Resources and Services Administration, Health Professional Shortage Area: Dental Health, April 2023.
+Health Professional Shortage Area: Mental Health
+County of Los Angeles
+Health Professional Shortage Area: Mental Health
+Health Resources and Services Administration, Health Professional Shortage Area: Mental Health, April 2023.
+## Theme Name
+Data Themes
+- ###### Jump to Data Theme
+- Demographics
+- Social Determinants of Health
+- Physical Activity and Nutrition
+- Tobacco Use
+- Housing and Health
+- Community Safety
+- Environmental Justice
+- Perinatal and Infant Health
+- Behavioral Health
+- HIV and Other Sexually Transmitted Infections
+- Healthcare Access
+- Top of page ↑
+- Print this section
+313 N. Figueroa St., Los Angeles, CA 90012
+
+Population Total
+Population Density
+people per square mile
+Median Household Income
+Diversity Index
+on a scale of 0 to 100
+Less DiverseMore Diverse
+Diversity is measured as "the probability that any two people chosen at random from a given area are of different races or ethnicity."
+State Area Deprivation Index
+on a scale of 1 to 10
+Less DeprivationMore Deprivation
+Higher levels of deprivation have been associated with an increased risk of adverse health and health care outcomes.
+Poverty Rate
+of residents
+The poverty line is calculated by finding the total cost of all the essential resources that an average human adult consumes in one year.
+High School Graduation Rate
+of residents
+This rate represents the percentage of residents with a high school education or higher.
+Social Vulnerability Index
+LowModerateHigh
+Census Tract 2's ranking of **0.35** indicates a **Moderate** level of vulnerability.
+##### Population by Age
+| Age | Total Count | % of Population |
+| --- | --- | --- |
+| Under 18 | 1,000 | 20% |
+| Between 18 and 65 | 3,173 | 64% |
+| Over 65 | 819 | 16% |
+| Total | 4,992 | 100% |
+##### Population by Race
+| Race | Total Count | % of Population |
+| --- | --- | --- |
+| Asian | 0 | N/A |
+| Native american | 0 | N/A |
+| Pacific islander | 0 | N/A |
+| Another race | 87 | 2% |
+| Multiracial | 163 | 3% |
+| White | 1,072 | 22% |
+| Black | 3,670 | 74% |
+| Total | 4,992 | 100% |
+##### Population by Ethnicity
+| Ethnicity | Total Count | % of Population |
+| --- | --- | --- |
+| Hispanic | 380 | 8% |
+| Non-hispanic | 4,612 | 92% |
+| Total | 4,992 | 100% |
+# Acceptable Use Policy
+##### By using this website you agree to our Acceptable Use Policy.
+The Delaware Environmental Public Health Tracking Network (My Healthy Community) strives to comply at all times with the rules governing the use or disclosure of individual health information for research purposes. These rules include the federal regulations under HIPAA for the protection of people's privacy rights. Your use of these data must respect the privacy and confidentiality of individuals, and as such, you must not attempt to identify any individuals whose records were used in the calculation of the measures and results.
+Currently Selected Location
+Census Tract 2
+Click to change location
+
+- Health Topics
+Demographics are the classifiable characteristics of a given population.
+Demographic characteristics most commonly used in public health statistics include,
+age, gender, race/ethnicity, geographic area, education level and income.
+## Why It's Important
+Analysis of public health data by demographic characteristics is essential
+to the reduction and elimination of health disparities. The
+describes health disparities as differences in "the overall rate of disease
+incidence, prevalence, morbidity, mortality, or survival rates in the population
+as compared to the health status of the general population." The definition can
+be applied to any demographic group, not just racial/ethnic minorities.
+Analysis by demographic characteristics also shows at what age certain diseases
+and conditions typically affect persons as well as how life events, choices, and
+circumstances (e.g., marriage, military service, and educational attainment)
+affect health outcomes.
+## What Is Known
+Certain demographic groups have consistently better outcomes than others on a variety
+of public health issues. For example, infant mortality among whites is a fraction of
+half that of men.
+## How It's Tracked
+Demographic characteristics are tracked in most public health data sets including, but not limited to:
+Watch Video
+
+# American Community Survey (ACS)
+The American Community Survey (ACS) is a nationwide survey conducted by the U.S. Census Bureau to provide communities with demographic, social, economic, and housing data every year. The California State Data Center generates reports and tabulations from data files released by the U.S. Census Bureau.
+## ACS Summary Files
+## Special ACS Files
+## American Community Survey Statistical Testing Tool
+## 2024 American Community Survey 1-Year Estimates NEW
+## 2023 American Community Survey 5-Year Estimates (2019-2023)
+## 2023 American Community Survey 1-Year Estimates
+– All data and all geographies from the 2023 ACS. **Selected Data for California, Counties, and Places of 65,000+ population and Historic Comparison for 2023 to 2019.**
+## 2022 American Community Survey 5-Year Estimates (2018-2022)
+## 2022 American Community Survey 1-Year Estimates
+## 2021 American Community Survey 5-Year Estimates (2017-2021)
+## 2021 American Community Survey 5-Year Estimates (2017-2021) – Selected Population Tables by Race/Ethnicity
+- Data Profiles for California by total population, major race group (not Hispanic), and Hispanics.
+## 2021 American Community Survey 1-Year Estimates
+## 2020 American Community Survey 5-Year Estimates (2016-2020)
+**Note:** Due to the data collection disruptions arising from the COVID-19 Pandemic, the Census Bureau revised their weighting methodology to mitigate nonresponse bias in the 2020 data. As a result, the Census Bureau recommends using caution when comparing the 2016-2020 ACS 5-year estimates with other ACS data or 2020 Census data.
+## 2020 American Community Survey 1-Year Experimental Data Tables
+## 2019 American Community Survey 5-Year Estimates (2015-2019)
+## 2019 American Community Survey 1-Year Estimates
+## 2018 American Community Survey 5-Year Estimates (2014-2018)
+## 2018 American Community Survey 1-Year Estimates
+## 2017 American Community Survey 5-Year Estimates (2013-2017)
+## 2017 American Community Survey 1-Year Estimates
+## 2016 American Community Survey 5-Year Estimates (2012-2016)
+## 2016 American Community Survey 1-Year Estimates
+## 2015 American Community Survey 5-Year Estimates (2011-2015) – Selected Population Tables by Race/Ethnicity
+- Data Profiles for California by total population, major race group (not Hispanic), and Hispanics.
+- Historic Comparison Profiles by total population, major race group (not Hispanic), and Hispanics for California.
+## 2015 American Community Survey 5-Year Estimates (2011-2015)
+## 2015 American Community Survey 1-Year Estimates
+## 2014 American Community Survey 5-Year Estimates (2010-2014)
+## 2014 American Community Survey 1-Year Estimates
+## 2013 American Community Survey 5-Year Estimates (2009-2013)
+## 2013 American Community Survey 1-Year Estimates
+## 2012 American Community Survey 5-Year Estimates (2008-2012)
+## 2012 American Community Survey 1-Year Estimates
+## 2011 American Community Survey 5-Year Estimates (2007-2011) – County to County Migration Flows
+## 2011 American Community Survey California 1-Year Report
+This report provides an overview of the demographic, social, and economic characteristics of California’s population. Topics include income, poverty, education, health insurance coverage, language, place of birth, migration, and more. The tabulations in this report are based on special data runs from the American Community Survey (ACS) Public Use Microdata Sample 1-year file.
+## 2011 American Community Survey 5-Year Estimates (2007-2011)
+**Selected Data for ZIP Code Tabulation Areas (ZCTAs)**
+## 2011 American Community Survey 1-Year Estimates
+## 2010 American Community Survey 5-Year Estimates (2006-2010) – Commute Flows by County
+## 2010 American Community Survey 5-Year Estimates (2006-2010) – Selected Population Tables by Race/Ethnicity
+- Data Profiles for California by total population, major race group (not Hispanic), and Hispanics (with comparison to the 2000 Census, Summary File 4)
+Quick links to similar data on data.census.gov for California Counties by total population, major race group (not Hispanic), and Hispanics (NOTE: Review the files above for cautions when comparing data from the 2000 census to the ACS.)
+- **2010-2006 American Community Survey:**
+- DP 2 – Social Characteristics
+|     |     |
+| --- | --- |
+- DP 3 – Economic Characteristics
+|     |     |
+| --- | --- |
+- DP 4 – Housing Characteristics
+|     |     |
+| --- | --- |
+- 2000 Summary File 4:
+## 2010 American Community Survey 5-Year Estimates (2006-2010)
+**Data for California, Counties, Incorporated Cities, and Census Designated Places**
+- The ACS began collecting Health Insurance data in 2008. Therefore, they are not available in this 5-year file.
+**Data for School Districts in California**
+## 2010 American Community Survey 1-Year Estimates
+These are the first ACS estimates of social and economic data with geography and population controls consistent with the 2010 Census. **Data for California, Counties, and Places of 65,000+ Population and Historical Comparison for 2010 to 2006 (except where noted).**
+## 2009 American Community Survey 5-Year Estimates (2005-2009)
+Important Note: The geographic areas in this file are based on the 2000 Census places. Newer areas are not included. **Also these data do not reflect the results of the 2010 Census.**
+## American Community Survey Tutorials
+The U.S. Census Bureau releases three ACS tabulations each year:
+| Product | Population Threshold | Geographies |
+| :-: | :-: | :-: |
+| 1-year estimates | 65,000+ | Nation, State, County, Place |
+| 3-year estimates discontinued in 2014 | 20,000+ | Nation, State, County, Place |
+| 5-year estimates | None | All – Nation, State, County, Place, Census Tract, Block Group, and School Districts. |
+- For each survey product, 1-, 3-, and 5-year estimates, the Census Bureau produces two data files — the Summary File and the Public Use Microdata Sample (PUMS).
+The California State Data Center staff can generate special tabulations from the ACS PUMS upon request. A fee may be charged to cover costs.
+Comments and suggestions? Please email [CensusData4CA@dof.ca.gov](mailto:CensusData4CA@dof.ca.gov;webmaster@dof.ca.gov).
+
+Population Total
+Population Density
+people per square mile
+Median Household Income
+Diversity Index
+on a scale of 0 to 100
+Less DiverseMore Diverse
+Diversity is measured as "the probability that any two people chosen at random from a given area are of different races or ethnicity."
+State Area Deprivation Index
+on a scale of 1 to 10
+Less DeprivationMore Deprivation
+Higher levels of deprivation have been associated with an increased risk of adverse health and health care outcomes.
+Poverty Rate
+of residents
+The poverty line is calculated by finding the total cost of all the essential resources that an average human adult consumes in one year.
+High School Graduation Rate
+of residents
+This rate represents the percentage of residents with a high school education or higher.
+Social Vulnerability Index
+LowModerateHigh
+Census Tract 425's ranking of **0.99** indicates a **Moderate** level of vulnerability.
+##### Population by Age
+| Age | Total Count | % of Population |
+| --- | --- | --- |
+| Under 18 | 1,138 | 26% |
+| Between 18 and 65 | 2,458 | 56% |
+| Over 65 | 787 | 18% |
+| Total | 4,383 | 100% |
+##### Population by Race
+| Race | Total Count | % of Population |
+| --- | --- | --- |
+| Native american | 0 | N/A |
+| Pacific islander | 0 | N/A |
+| Another race | 38 | 1% |
+| Asian | 84 | 2% |
+| Multiracial | 372 | 9% |
+| Black | 1,936 | 44% |
+| White | 1,953 | 45% |
+| Total | 4,383 | 100% |
+##### Population by Ethnicity
+| Ethnicity | Total Count | % of Population |
+| --- | --- | --- |
+| Hispanic | 264 | 6% |
+| Non-hispanic | 4,119 | 94% |
+| Total | 4,383 | 100% |
+# Acceptable Use Policy
+##### By using this website you agree to our Acceptable Use Policy.
+The Delaware Environmental Public Health Tracking Network (My Healthy Community) strives to comply at all times with the rules governing the use or disclosure of individual health information for research purposes. These rules include the federal regulations under HIPAA for the protection of people's privacy rights. Your use of these data must respect the privacy and confidentiality of individuals, and as such, you must not attempt to identify any individuals whose records were used in the calculation of the measures and results.
+Currently Selected Location
+Census Tract 425
+Click to change location
+
+# Population And Communities Chapter Test
+**File Name:** Population And Communities Chapter Test**Size:** 4121 KB**Type:** PDF, ePub, eBook**Category:** Book**Uploaded:** 2025 Sep 07, 15:19**Rating:** ★★★★☆ 4.6/5 from 5611 votes.
+**Status:** Available
+\*View all access and Register options for this article
+eBook includes PDF, ePub, and Kindle versions.
+### How to Download
+2\. Fill out the registration form
+3\. Get your file instantly
+[**Register a free 1 month**\\
+**Descriptions:**

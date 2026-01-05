@@ -43,7 +43,7 @@ export default function EchoPage() {
   // ---------- helpers ----------
   const safeCommunities = useMemo(() => communities ?? [], [communities])
 
-  const templateResultData = useMemo(() => ({
+  const templateResultData = {
     executive_summary: {
       overall_readiness_score: "6.36/10",
       key_findings: [
@@ -88,7 +88,7 @@ export default function EchoPage() {
       predicted_discussion:
         "The audience discussion indicates broad support for the article's pragmatic, data-driven approach to policy development, particularly in areas like climate resilience, housing, and civic technology, while raising concerns about implementation complexity and resource constraints.",
     },
-  }), [])
+  }
 
   // ---------- server calls ----------
   const fetchCommunities = async () => {
@@ -156,24 +156,40 @@ export default function EchoPage() {
   }
 
   // Fire-and-forget: tell Flask to run RAG; Flask should write rag_{artifact}.json
-  const startFlaskRag = async (artifactNumber: number, draft: string) => {
-    try {
-      // send extra fields if your Flask wants to name the output rag_{artifactNumber}.json
-      await fetch(`${FLASK_BASE}/analyze`, {
-        method: "POST",
-        mode: "cors",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          draft,
-          artifact_number: artifactNumber, 
-          communityId: selectedCommunity, // Flask can ignore if not used
-        }),
-      })
-      // We don't rely on this response; we’ll poll for the rag file instead.
-    } catch (e) {
-      console.error("Flask analyze error:", e)
-    }
+const startFlaskRag = async (artifactNumber: number, draft: string, communityFolder: string) => {
+  try {
+    await fetch(`${FLASK_BASE}/analyze`, {
+      method: "POST",
+      mode: "cors",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        draft,
+        artifact_number: artifactNumber,
+        communityId: communityFolder, // <- this is the folder on disk
+      }),
+    })
+  } catch (e) {
+    console.error("Flask analyze error:", e)
   }
+}
+
+  const pollForResponse = async (communityId: string, artifactNumber: any, interval = 2000, maxAttempts = 300) => {
+  let attempts = 0;
+  while (attempts < maxAttempts) {
+    try {
+      const response = await fetch(`/api/get-response?communityId=${communityId}&artifactNumber=${artifactNumber}`);
+      const data = await response.json();
+      if (data.success && data.found && data.data) {
+        return { found: true, data: data.data };
+      }
+    } catch (error) {
+      // Ignore errors and keep polling
+    }
+    await new Promise((resolve) => setTimeout(resolve, interval));
+    attempts++;
+  }
+  return { found: false };
+  };
 
   const handleSimulate = async () => {
     if (!selectedCommunity || !draftText.trim()) return
@@ -192,15 +208,33 @@ export default function EchoPage() {
 
       setCurrentArtifactNumber(artifactNumber)
 
-      // 2) Start the Flask RAG in the background (fire-and-forget)
-      void startFlaskRag(artifactNumber, draftText)
+      const selected = safeCommunities.find(c => c.id === selectedCommunity)
+      const communityFolder = selected?.folderName || selectedCommunity!
+      void startFlaskRag(artifactNumber, draftText, communityFolder)
 
       // 3) Show animation while RAG runs
       setShowAnimation(true)
+
+      const pollResult = await pollForResponse(selectedCommunity, data.artifactNumber)
+      setShowAnimation(false)
+      if (pollResult.found) {
+        setResultData(pollResult.data)
+        setShowResults(true)
+      } else {
+        setResultData({
+        ...templateResultData,
+        _isTemplate: true,
+        _message: 'Analysis is still processing...'
+        })
+        setShowResults(true)
+      }
     } catch (err) {
       console.error("Error saving artifact or starting RAG:", err)
       setIsSimulating(false)
       alert(String(err))
+    } finally {
+      setLoadingResults(false)
+      setIsSimulating(false)
     }
   }
 
@@ -213,15 +247,19 @@ export default function EchoPage() {
     const pollOnce = async () => {
       if (!selectedCommunity || currentArtifactNumber == null) return { found: false }
 
+      // 👇 use folderName, not id
+      const selected = safeCommunities.find(c => c.id === selectedCommunity)
+      const communityFolder = selected?.folderName || selectedCommunity
+
       const url = `/api/get-response?communityId=${encodeURIComponent(
-        selectedCommunity
+        communityFolder
       )}&artifactNumber=${encodeURIComponent(currentArtifactNumber)}`
 
       try {
         const res = await fetch(url, { method: "GET" })
         if (!res.ok) throw new Error(`HTTP ${res.status}`)
         const data = await res.json()
-        return data // { success, found, data?, message? }
+        return data
       } catch (e) {
         console.error("Polling error:", e)
         return { success: false, found: false, message: String(e) }

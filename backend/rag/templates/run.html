@@ -10,6 +10,7 @@
     .card { border: 1px solid #e5e7eb; border-radius: 12px; padding: 16px; background: #fff; }
     h1 { font-size: 22px; margin: 0 0 8px; }
     h2 { font-size: 18px; margin: 16px 0 8px; }
+    h3 { font-size: 16px; margin: 12px 0 6px; }
     textarea { width: 100%; min-height: 220px; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
     code, pre { background: #f8fafc; border-radius: 8px; padding: 10px; display: block; white-space: pre-wrap; }
     .muted { color: #6b7280; }
@@ -61,75 +62,171 @@
       document.getElementById("runId").textContent = runId;
       document.getElementById("jsonLink").href = "/api/run/" + encodeURIComponent(runId);
 
+      // Helper to create a pill span with safe text
+      function createPill(text) {
+        const span = document.createElement("span");
+        span.className = "pill";
+        span.textContent = text;
+        return span;
+      }
+
+      // Helper to create a list item with text and optional muted count
+      function createListItem(text, count) {
+        const li = document.createElement("li");
+        li.textContent = text + " ";
+        if (count !== undefined) {
+          const muted = document.createElement("span");
+          muted.className = "muted";
+          muted.textContent = "(" + count + ")";
+          li.appendChild(muted);
+        }
+        return li;
+      }
+
       fetch("/api/run/" + encodeURIComponent(runId))
-        .then(r => r.json())
-        .then(({ ok, data }) => {
+        .then(function(r) { return r.json(); })
+        .then(function(response) {
+          var ok = response.ok;
+          var data = response.data;
           if (!ok) throw new Error("Run not found");
 
           // Draft
-          document.getElementById("draft").value = (data?.input?.draft || "").trim();
+          document.getElementById("draft").value = (data && data.input && data.input.draft || "").trim();
 
           // Retrieval
-          const sn = (data?.retrieval?.snippets || []).slice(0, 8);
-          const snDiv = document.getElementById("snippets");
-          if (!sn.length) {
-            snDiv.innerHTML = '<div class="muted">No snippets.</div>';
+          var snippets = (data && data.retrieval && data.retrieval.snippets || []).slice(0, 8);
+          var snDiv = document.getElementById("snippets");
+          snDiv.textContent = ""; // Clear
+
+          if (!snippets.length) {
+            var noSnippets = document.createElement("div");
+            noSnippets.className = "muted";
+            noSnippets.textContent = "No snippets.";
+            snDiv.appendChild(noSnippets);
           } else {
-            sn.forEach(s => {
-              const el = document.createElement("div");
+            snippets.forEach(function(s) {
+              var el = document.createElement("div");
               el.style.marginBottom = "10px";
-              el.innerHTML = `
-                <div class="muted">[${s.idx}] ${s.source} (chunk ${s.chunk_index}) • score ${Number(s.score||0).toFixed(3)}</div>
-                <pre>${(s.text||"").replace(/[<>&]/g, m => ({'<':'&lt;','>':'&gt;','&':'&amp;'}[m]))}</pre>
-              `;
+
+              var metaDiv = document.createElement("div");
+              metaDiv.className = "muted";
+              metaDiv.textContent = "[" + (s.idx || "") + "] " + (s.source || "") + " (chunk " + (s.chunk_index || "") + ") • score " + Number(s.score || 0).toFixed(3);
+              el.appendChild(metaDiv);
+
+              var pre = document.createElement("pre");
+              pre.textContent = s.text || "";
+              el.appendChild(pre);
+
               snDiv.appendChild(el);
             });
           }
 
           // Editorial rollup
-          const ed = data?.editorial?.rollup || {};
-          const edDiv = document.getElementById("editorial");
-          const scores = ed.scores_avg || {};
-          const sugg = (ed.consensus_suggestions || []).slice(0, 8);
-          const risks = (ed.consensus_risks || []).slice(0, 8);
-          edDiv.innerHTML = `
-            <div>Scores avg:
-              ${Object.entries(scores).map(([k,v]) => `<span class="pill">${k}: ${v ?? '-'}</span>`).join(' ')}
-            </div>
-            <h3>Top suggestions</h3>
-            <ul>${sugg.map(s => `<li>${s.item} <span class="muted">(${s.count})</span></li>`).join('')}</ul>
-            <h3>Top risks</h3>
-            <ul>${risks.map(s => `<li>${s.item} <span class="muted">(${s.count})</span></li>`).join('')}</ul>
-          `;
+          var ed = (data && data.editorial && data.editorial.rollup) || {};
+          var edDiv = document.getElementById("editorial");
+          edDiv.textContent = ""; // Clear
+
+          var scoresAvg = ed.scores_avg || {};
+          var scoresDiv = document.createElement("div");
+          scoresDiv.textContent = "Scores avg: ";
+          Object.keys(scoresAvg).forEach(function(k) {
+            scoresDiv.appendChild(createPill(k + ": " + (scoresAvg[k] != null ? scoresAvg[k] : "-")));
+          });
+          edDiv.appendChild(scoresDiv);
+
+          var suggTitle = document.createElement("h3");
+          suggTitle.textContent = "Top suggestions";
+          edDiv.appendChild(suggTitle);
+
+          var suggList = document.createElement("ul");
+          var sugg = (ed.consensus_suggestions || []).slice(0, 8);
+          if (sugg.length) {
+            sugg.forEach(function(s) {
+              suggList.appendChild(createListItem(s.item || "", s.count));
+            });
+          }
+          edDiv.appendChild(suggList);
+
+          var risksTitle = document.createElement("h3");
+          risksTitle.textContent = "Top risks";
+          edDiv.appendChild(risksTitle);
+
+          var risksList = document.createElement("ul");
+          var risks = (ed.consensus_risks || []).slice(0, 8);
+          if (risks.length) {
+            risks.forEach(function(s) {
+              risksList.appendChild(createListItem(s.item || "", s.count));
+            });
+          }
+          edDiv.appendChild(risksList);
 
           // Audience rollup
-          const au = data?.audience?.rollup || {};
-          const auDiv = document.getElementById("audience");
-          const stance = au.stance_counts || {};
-          const concerns = (au.top_concerns || []).slice(0, 8);
-          const questions = (au.top_questions || []).slice(0, 8);
-          const avg = au.avg_scores || {};
-          auDiv.innerHTML = `
-            <div>Avg:
-              <span class="pill">trust: ${avg.trust ?? '-'}</span>
-              <span class="pill">relevance: ${avg.relevance ?? '-'}</span>
-              <span class="pill">share: ${avg.share_intent ?? '-'}</span>
-            </div>
-            <div style="margin-top:6px">Stance:
-              ${Object.entries(stance).map(([k,v]) => `<span class="pill">${k}: ${v}</span>`).join(' ')}
-            </div>
-            <h3>Top concerns</h3>
-            <ul>${concerns.map(s => `<li>${s.item} <span class="muted">(${s.count})</span></li>`).join('')}</ul>
-            <h3>Top questions</h3>
-            <ul>${questions.map(s => `<li>${s.item} <span class="muted">(${s.count})</span></li>`).join('')}</ul>
-          `;
+          var au = (data && data.audience && data.audience.rollup) || {};
+          var auDiv = document.getElementById("audience");
+          auDiv.textContent = ""; // Clear
+
+          var avg = au.avg_scores || {};
+          var avgDiv = document.createElement("div");
+          avgDiv.textContent = "Avg: ";
+          avgDiv.appendChild(createPill("trust: " + (avg.trust != null ? avg.trust : "-")));
+          avgDiv.appendChild(createPill("relevance: " + (avg.relevance != null ? avg.relevance : "-")));
+          avgDiv.appendChild(createPill("share: " + (avg.share_intent != null ? avg.share_intent : "-")));
+          auDiv.appendChild(avgDiv);
+
+          var stance = au.stance_counts || {};
+          var stanceDiv = document.createElement("div");
+          stanceDiv.style.marginTop = "6px";
+          stanceDiv.textContent = "Stance: ";
+          Object.keys(stance).forEach(function(k) {
+            stanceDiv.appendChild(createPill(k + ": " + stance[k]));
+          });
+          auDiv.appendChild(stanceDiv);
+
+          var concernsTitle = document.createElement("h3");
+          concernsTitle.textContent = "Top concerns";
+          auDiv.appendChild(concernsTitle);
+
+          var concernsList = document.createElement("ul");
+          var concerns = (au.top_concerns || []).slice(0, 8);
+          if (concerns.length) {
+            concerns.forEach(function(s) {
+              concernsList.appendChild(createListItem(s.item || "", s.count));
+            });
+          }
+          auDiv.appendChild(concernsList);
+
+          var questionsTitle = document.createElement("h3");
+          questionsTitle.textContent = "Top questions";
+          auDiv.appendChild(questionsTitle);
+
+          var questionsList = document.createElement("ul");
+          var questions = (au.top_questions || []).slice(0, 8);
+          if (questions.length) {
+            questions.forEach(function(s) {
+              questionsList.appendChild(createListItem(s.item || "", s.count));
+            });
+          }
+          auDiv.appendChild(questionsList);
 
           // Headlines
-          const heads = (data?.editorial?.headline_pool || []).slice(0, 12);
-          document.getElementById("headlines").innerHTML =
-            heads.length ? heads.map(h => `<li>${h}</li>`).join('') : '<li class="muted">None.</li>';
+          var heads = (data && data.editorial && data.editorial.headline_pool || []).slice(0, 12);
+          var headlinesList = document.getElementById("headlines");
+          headlinesList.textContent = ""; // Clear
+
+          if (heads.length) {
+            heads.forEach(function(h) {
+              var li = document.createElement("li");
+              li.textContent = h;
+              headlinesList.appendChild(li);
+            });
+          } else {
+            var noneLi = document.createElement("li");
+            noneLi.className = "muted";
+            noneLi.textContent = "None.";
+            headlinesList.appendChild(noneLi);
+          }
         })
-        .catch(err => {
+        .catch(function(err) {
           alert("Failed to load run: " + err.message);
         });
     })();

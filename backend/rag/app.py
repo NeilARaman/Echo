@@ -214,11 +214,11 @@ CORS(app)
 # Utilities
 # -----------------------------
 def _hash_id(s: str) -> str:
-    return hashlib.sha1(s.encode("utf-8")).hexdigest()
+    return hashlib.sha256(s.encode("utf-8")).hexdigest()
 
 def _safe_filename_from_text(text: str, prefix: str = "analysis", ext: str = "json") -> str:
     ts = datetime.utcnow().strftime("%Y%m%d_%H%M%S")
-    h = hashlib.sha1((text or "").encode("utf-8")).hexdigest()[:8]
+    h = hashlib.sha256((text or "").encode("utf-8")).hexdigest()[:8]
     return f"{prefix}_{ts}_{h}.{ext}"
 
 def save_run_json(payload: Dict[str, Any], out_dir: str, filename: str) -> str:
@@ -426,7 +426,7 @@ def _dedup_hits(hits: List[Dict[str,Any]]) -> List[Dict[str,Any]]:
     out = []
     for h in hits:
         htxt = (h.get("text") or "").strip()
-        key = hashlib.sha1(htxt.encode("utf-8")).hexdigest()
+        key = hashlib.sha256(htxt.encode("utf-8")).hexdigest()
         if key in seen:
             continue
         seen.add(key)
@@ -1347,4 +1347,6 @@ def analyze():
 if __name__ == "__main__":
     print(f"[Anthropic] CLAUDE_MODEL (env): {os.getenv('CLAUDE_MODEL') or '(none)'}")
     print(f"[Anthropic] Model candidates: {MODEL_FALLBACKS}")
-    app.run(host="0.0.0.0", port=5000, debug=True)
+    # Use DEBUG env var, default to False in production
+    debug_mode = os.getenv("FLASK_DEBUG", "false").lower() == "true"
+    app.run(host="0.0.0.0", port=5000, debug=debug_mode)

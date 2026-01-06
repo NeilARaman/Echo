@@ -7,25 +7,42 @@ async function postJSON(url, body, isForm=false) {
     headers: isForm ? {} : {"Content-Type":"application/json"},
     body: isForm ? body : JSON.stringify(body || {})
   });
-  if (!res.ok) throw new Error(`${url} ${res.status}`);
+  if (!res.ok) throw new Error(url + " " + res.status);
   return res.json();
 }
 
 function setStatus(msg){ if(statusEl) statusEl.textContent = msg; }
 
+// Helper to create elements with text content safely
+function createEl(tag, className, text) {
+  const el = document.createElement(tag);
+  if (className) el.className = className;
+  if (text !== undefined) el.textContent = text;
+  return el;
+}
+
+// Helper to create a pill span
+function createPill(text) {
+  const span = document.createElement("span");
+  span.className = "pill";
+  span.textContent = text;
+  return span;
+}
+
 function renderSnippets(snips){
   const box = $("snippets");
   if(!box) return;
-  box.innerHTML = "";
+  box.textContent = "";
   if(!snips || !snips.length){
-    box.innerHTML = "<p class='warn'>No retrieval context yet.</p>";
+    box.appendChild(createEl("p", "warn", "No retrieval context yet."));
     return;
   }
   snips.forEach(s=>{
-    const div = document.createElement("div");
-    div.className = "card";
+    const div = createEl("div", "card");
     const score = (typeof s.score === "number") ? s.score.toFixed(3) : "-";
-    div.innerHTML = `<h4>[${s.idx}] ${s.source} (chunk ${s.chunk_index})</h4><p>${s.text}</p><div class="tag">score ${score}</div>`;
+    div.appendChild(createEl("h4", null, "[" + (s.idx || "") + "] " + (s.source || "") + " (chunk " + (s.chunk_index || "") + ")"));
+    div.appendChild(createEl("p", null, s.text || ""));
+    div.appendChild(createEl("div", "tag", "score " + score));
     box.appendChild(div);
   });
 }
@@ -34,44 +51,37 @@ function renderReport(report){
   const scores = report.overall_scores_avg || {};
   const el = $("scores");
   if(el){
-    el.innerHTML = `
-      <div class="kv">
-        <span class="pill">clarity: <b>${scores.clarity ?? "-"}/10</b></span>
-        <span class="pill">accuracy: <b>${scores.accuracy ?? "-"}/10</b></span>
-        <span class="pill">engagement: <b>${scores.engagement ?? "-"}/10</b></span>
-        <span class="pill">novelty: <b>${scores.novelty ?? "-"}/10</b></span>
-        <span class="pill">risk: <b>${scores.risk ?? "-"}/10</b></span>
-      </div>
-    `;
+    el.textContent = "";
+    const kv = createEl("div", "kv");
+    kv.appendChild(createPill("clarity: " + (scores.clarity ?? "-") + "/10"));
+    kv.appendChild(createPill("accuracy: " + (scores.accuracy ?? "-") + "/10"));
+    kv.appendChild(createPill("engagement: " + (scores.engagement ?? "-") + "/10"));
+    kv.appendChild(createPill("novelty: " + (scores.novelty ?? "-") + "/10"));
+    kv.appendChild(createPill("risk: " + (scores.risk ?? "-") + "/10"));
+    el.appendChild(kv);
   }
 
   const consSug = $("consSuggestions");
   if(consSug){
-    consSug.innerHTML = "";
+    consSug.textContent = "";
     (report.top_consensus_suggestions || []).forEach(x=>{
-      const li = document.createElement("li");
-      li.textContent = `${x.item} (${x.count})`;
-      consSug.appendChild(li);
+      consSug.appendChild(createEl("li", null, (x.item || "") + " (" + x.count + ")"));
     });
   }
 
   const consRisk = $("consRisks");
   if(consRisk){
-    consRisk.innerHTML = "";
+    consRisk.textContent = "";
     (report.top_consensus_risks || []).forEach(x=>{
-      const li = document.createElement("li");
-      li.textContent = `${x.item} (${x.count})`;
-      consRisk.appendChild(li);
+      consRisk.appendChild(createEl("li", null, (x.item || "") + " (" + x.count + ")"));
     });
   }
 
   const head = $("headlines");
   if(head){
-    head.innerHTML = "";
+    head.textContent = "";
     (report.headline_ideas_pool || []).forEach(h=>{
-      const li = document.createElement("li");
-      li.textContent = h;
-      head.appendChild(li);
+      head.appendChild(createEl("li", null, h));
     });
   }
 }
@@ -79,60 +89,86 @@ function renderReport(report){
 function renderBots(bots, perBot){
   const cards = $("botCards");
   if(!cards) return;
-  cards.innerHTML = "";
+  cards.textContent = "";
 
-  const formatCites = (arr) => (arr && arr.length ? arr.map(x=>`[${x}]`).join(" ") : "—");
+  const formatCites = (arr) => (arr && arr.length ? arr.map(x=>"["+x+"]").join(" ") : "—");
 
   bots.forEach(b=>{
     const r = perBot[b.id] || {};
     const ratings = r.ratings || {};
-    const cite = (r.citations || []).map(c=>`[${c}]`).join(" ");
-    const kp = (r.key_points || []).map(x=>`<li>${x}</li>`).join("");
+    const cite = (r.citations || []).map(c=>"["+c+"]").join(" ");
 
-    const sug = (r.suggestions || []).map(x=>{
-      if (typeof x === "string") return `<li>${x}</li>`;
-      return `<li>
-        <div><b>${x.text || ""}</b></div>
-        ${x.rationale ? `<div class="muted">${x.rationale}</div>` : ""}
-        <div class="tag">impact: ${x.impact || "-"}</div>
-        <div class="tag">effort: ${x.effort || "-"}</div>
-        <div class="tag">cites: ${formatCites(x.supported_by || [])}</div>
-      </li>`;
-    }).join("");
+    const card = createEl("div", "card");
+    card.appendChild(createEl("h4", null, b.name || ""));
+    card.appendChild(createEl("p", null, r.summary || ""));
 
-    const risk = (r.risks || []).map(x=>{
-      if (typeof x === "string") return `<li>${x}</li>`;
-      return `<li>
-        <div><b>${x.issue || ""}</b></div>
-        ${x.rationale ? `<div class="muted">${x.rationale}</div>` : ""}
-        <div class="tag">severity: ${x.severity ?? "-"}/10</div>
-        <div class="tag">cites: ${formatCites(x.supported_by || [])}</div>
-        ${x.mitigation ? `<div class="badge">mitigation: ${x.mitigation}</div>` : ""}
-      </li>`;
-    }).join("");
+    const kv = createEl("div", "kv");
+    kv.appendChild(createPill("clarity " + (ratings.clarity ?? "-") + "/10"));
+    kv.appendChild(createPill("accuracy " + (ratings.accuracy ?? "-") + "/10"));
+    kv.appendChild(createPill("engagement " + (ratings.engagement ?? "-") + "/10"));
+    kv.appendChild(createPill("novelty " + (ratings.novelty ?? "-") + "/10"));
+    kv.appendChild(createPill("risk " + (ratings.risk ?? "-") + "/10"));
+    card.appendChild(kv);
 
-    const heads = (r.headline_suggestions || []).map(x=>`<li>${x}</li>`).join("");
-    const acts = (r.next_actions || []).map(x=>`<li>${x}</li>`).join("");
+    // Key Points
+    card.appendChild(createEl("h5", null, "Key Points"));
+    const kpUl = document.createElement("ul");
+    (r.key_points || []).forEach(x => kpUl.appendChild(createEl("li", null, x)));
+    card.appendChild(kpUl);
 
-    const card = document.createElement("div");
-    card.className = "card";
-    card.innerHTML = `
-      <h4>${b.name}</h4>
-      <p>${r.summary || ""}</p>
-      <div class="kv">
-        <span class="pill">clarity ${ratings.clarity ?? "-"}/10</span>
-        <span class="pill">accuracy ${ratings.accuracy ?? "-"}/10</span>
-        <span class="pill">engagement ${ratings.engagement ?? "-"}/10</span>
-        <span class="pill">novelty ${ratings.novelty ?? "-"}/10</span>
-        <span class="pill">risk ${ratings.risk ?? "-"}/10</span>
-      </div>
-      <h5>Key Points</h5><ul>${kp}</ul>
-      <h5>Suggestions</h5><ul>${sug}</ul>
-      <h5 class="warn">Risks</h5><ul>${risk}</ul>
-      ${heads ? `<h5>Headline Suggestions</h5><ul>${heads}</ul>` : ""}
-      ${acts ? `<h5>Next Actions</h5><ul>${acts}</ul>` : ""}
-      <div class="tag">Citations: ${cite || "—"}</div>
-    `;
+    // Suggestions
+    card.appendChild(createEl("h5", null, "Suggestions"));
+    const sugUl = document.createElement("ul");
+    (r.suggestions || []).forEach(x => {
+      const li = document.createElement("li");
+      if (typeof x === "string") {
+        li.textContent = x;
+      } else {
+        li.appendChild(createEl("div", null, x.text || ""));
+        if (x.rationale) li.appendChild(createEl("div", "muted", x.rationale));
+        li.appendChild(createEl("div", "tag", "impact: " + (x.impact || "-")));
+        li.appendChild(createEl("div", "tag", "effort: " + (x.effort || "-")));
+        li.appendChild(createEl("div", "tag", "cites: " + formatCites(x.supported_by || [])));
+      }
+      sugUl.appendChild(li);
+    });
+    card.appendChild(sugUl);
+
+    // Risks
+    card.appendChild(createEl("h5", "warn", "Risks"));
+    const riskUl = document.createElement("ul");
+    (r.risks || []).forEach(x => {
+      const li = document.createElement("li");
+      if (typeof x === "string") {
+        li.textContent = x;
+      } else {
+        li.appendChild(createEl("div", null, x.issue || ""));
+        if (x.rationale) li.appendChild(createEl("div", "muted", x.rationale));
+        li.appendChild(createEl("div", "tag", "severity: " + (x.severity ?? "-") + "/10"));
+        li.appendChild(createEl("div", "tag", "cites: " + formatCites(x.supported_by || [])));
+        if (x.mitigation) li.appendChild(createEl("div", "badge", "mitigation: " + x.mitigation));
+      }
+      riskUl.appendChild(li);
+    });
+    card.appendChild(riskUl);
+
+    // Headline Suggestions
+    if (r.headline_suggestions && r.headline_suggestions.length) {
+      card.appendChild(createEl("h5", null, "Headline Suggestions"));
+      const headUl = document.createElement("ul");
+      r.headline_suggestions.forEach(x => headUl.appendChild(createEl("li", null, x)));
+      card.appendChild(headUl);
+    }
+
+    // Next Actions
+    if (r.next_actions && r.next_actions.length) {
+      card.appendChild(createEl("h5", null, "Next Actions"));
+      const actUl = document.createElement("ul");
+      r.next_actions.forEach(x => actUl.appendChild(createEl("li", null, x)));
+      card.appendChild(actUl);
+    }
+
+    card.appendChild(createEl("div", "tag", "Citations: " + (cite || "—")));
     cards.appendChild(card);
   });
 }
@@ -142,34 +178,30 @@ function renderAudienceReport(aud) {
   if(!box) return;
   const s = aud.avg_scores || {};
   const st = aud.stance_counts || {};
+
+  box.textContent = "";
+  const kv = createEl("div", "kv");
+  kv.appendChild(createPill("trust: " + (s.trust ?? "-") + "/10"));
+  kv.appendChild(createPill("relevance: " + (s.relevance ?? "-") + "/10"));
+  kv.appendChild(createPill("share intent: " + (s.share_intent ?? "-") + "/10"));
+  kv.appendChild(createPill("stance — support: " + (st.support||0) + ", oppose: " + (st.oppose||0) + ", mixed: " + (st.mixed||0)));
+  box.appendChild(kv);
+
   const concerns = aud.top_concerns || [];
   const questions = aud.top_questions || [];
-
-  box.innerHTML = `
-    <div class="kv">
-      <span class="pill">trust: <b>${s.trust ?? "-"}/10</b></span>
-      <span class="pill">relevance: <b>${s.relevance ?? "-"}/10</b></span>
-      <span class="pill">share intent: <b>${s.share_intent ?? "-"}/10</b></span>
-      <span class="pill">stance — support: ${st.support||0}, oppose: ${st.oppose||0}, mixed: ${st.mixed||0}</span>
-    </div>
-  `;
 
   const ulC = $("audienceTopConcerns");
   const ulQ = $("audienceTopQuestions");
   if (ulC) {
-    ulC.innerHTML = "";
+    ulC.textContent = "";
     concerns.forEach(x=>{
-      const li = document.createElement("li");
-      li.textContent = `${x.item} (${x.count})`;
-      ulC.appendChild(li);
+      ulC.appendChild(createEl("li", null, (x.item || "") + " (" + x.count + ")"));
     });
   }
   if (ulQ) {
-    ulQ.innerHTML = "";
+    ulQ.textContent = "";
     questions.forEach(x=>{
-      const li = document.createElement("li");
-      li.textContent = `${x.item} (${x.count})`;
-      ulQ.appendChild(li);
+      ulQ.appendChild(createEl("li", null, (x.item || "") + " (" + x.count + ")"));
     });
   }
 }
@@ -177,48 +209,92 @@ function renderAudienceReport(aud) {
 function renderAudienceCards(audBots, perAudience){
   const cards = $("audienceCards");
   if(!cards) return;
-  cards.innerHTML = "";
+  cards.textContent = "";
 
-  const formatCites = (arr) => (arr && arr.length ? arr.map(x=>`[${x}]`).join(" ") : "—");
+  const formatCites = (arr) => (arr && arr.length ? arr.map(x=>"["+x+"]").join(" ") : "—");
 
   audBots.forEach(a=>{
     const r = perAudience[a.id] || {};
-    const pos = (r.positives || []).map(x=>`<li>${x}</li>`).join("");
-    const concerns = (r.concerns || []).map(x=>{
-      if (typeof x === "string") return `<li>${x}</li>`;
-      return `<li>
-        <div><b>${x.issue || ""}</b></div>
-        ${x.why ? `<div class="muted">${x.why}</div>` : ""}
-        <div class="tag">severity: ${x.severity ?? "-"}/10</div>
-        <div class="tag">cites: ${formatCites(x.supported_by || [])}</div>
-      </li>`;
-    }).join("");
-    const qs = (r.questions_for_reporter || []).map(x=>`<li>${x}</li>`).join("");
-    const sugs = (r.suggestions_to_journalist || []).map(x=>{
-      if (typeof x === "string") return `<li>${x}</li>`;
-      return `<li><b>${x.text || ""}</b>${x.rationale?` — <span class="muted">${x.rationale}</span>`:""} <span class="tag">cites: ${formatCites(x.supported_by||[])}</span></li>`;
-    }).join("");
-    const cites = (r.citations || []).map(x=>`[${x}]`).join(" ");
+    const cites = (r.citations || []).map(x=>"["+x+"]").join(" ");
 
-    const card = document.createElement("div");
-    card.className = "card";
-    card.innerHTML = `
-      <h4>${a.name}</h4>
-      ${a.why_included ? `<p class="muted">${a.why_included}</p>` : ""}
-      <p>${r.persona_takeaway || ""}</p>
-      <div class="kv">
-        <span class="pill">stance: ${r.stance || "-"}</span>
-        <span class="pill">trust ${r.scores?.trust ?? "-"}/10</span>
-        <span class="pill">relevance ${r.scores?.relevance ?? "-"}/10</span>
-        <span class="pill">share ${r.scores?.share_intent ?? "-"}/10</span>
-      </div>
-      ${pos ? `<h5>Positives</h5><ul>${pos}</ul>` : ""}
-      ${concerns ? `<h5 class="warn">Concerns</h5><ul>${concerns}</ul>` : ""}
-      ${qs ? `<h5>Questions for Reporter</h5><ul>${qs}</ul>` : ""}
-      ${sugs ? `<h5>Suggestions to Journalist</h5><ul>${sugs}</ul>` : ""}
-      ${r.likely_comment ? `<div class="badge">Likely Comment: “${r.likely_comment}”</div>` : ""}
-      <div class="tag">Citations: ${cites || "—"}</div>
-    `;
+    const card = createEl("div", "card");
+    card.appendChild(createEl("h4", null, a.name || ""));
+    if (a.why_included) card.appendChild(createEl("p", "muted", a.why_included));
+    card.appendChild(createEl("p", null, r.persona_takeaway || ""));
+
+    const kv = createEl("div", "kv");
+    kv.appendChild(createPill("stance: " + (r.stance || "-")));
+    kv.appendChild(createPill("trust " + (r.scores?.trust ?? "-") + "/10"));
+    kv.appendChild(createPill("relevance " + (r.scores?.relevance ?? "-") + "/10"));
+    kv.appendChild(createPill("share " + (r.scores?.share_intent ?? "-") + "/10"));
+    card.appendChild(kv);
+
+    // Positives
+    const pos = r.positives || [];
+    if (pos.length) {
+      card.appendChild(createEl("h5", null, "Positives"));
+      const posUl = document.createElement("ul");
+      pos.forEach(x => posUl.appendChild(createEl("li", null, x)));
+      card.appendChild(posUl);
+    }
+
+    // Concerns
+    const concerns = r.concerns || [];
+    if (concerns.length) {
+      card.appendChild(createEl("h5", "warn", "Concerns"));
+      const conUl = document.createElement("ul");
+      concerns.forEach(x => {
+        const li = document.createElement("li");
+        if (typeof x === "string") {
+          li.textContent = x;
+        } else {
+          li.appendChild(createEl("div", null, x.issue || ""));
+          if (x.why) li.appendChild(createEl("div", "muted", x.why));
+          li.appendChild(createEl("div", "tag", "severity: " + (x.severity ?? "-") + "/10"));
+          li.appendChild(createEl("div", "tag", "cites: " + formatCites(x.supported_by || [])));
+        }
+        conUl.appendChild(li);
+      });
+      card.appendChild(conUl);
+    }
+
+    // Questions for Reporter
+    const qs = r.questions_for_reporter || [];
+    if (qs.length) {
+      card.appendChild(createEl("h5", null, "Questions for Reporter"));
+      const qsUl = document.createElement("ul");
+      qs.forEach(x => qsUl.appendChild(createEl("li", null, x)));
+      card.appendChild(qsUl);
+    }
+
+    // Suggestions to Journalist
+    const sugs = r.suggestions_to_journalist || [];
+    if (sugs.length) {
+      card.appendChild(createEl("h5", null, "Suggestions to Journalist"));
+      const sugsUl = document.createElement("ul");
+      sugs.forEach(x => {
+        const li = document.createElement("li");
+        if (typeof x === "string") {
+          li.textContent = x;
+        } else {
+          const textSpan = createEl("span", null, x.text || "");
+          li.appendChild(textSpan);
+          if (x.rationale) {
+            li.appendChild(document.createTextNode(" — "));
+            li.appendChild(createEl("span", "muted", x.rationale));
+          }
+          li.appendChild(document.createTextNode(" "));
+          li.appendChild(createEl("span", "tag", "cites: " + formatCites(x.supported_by||[])));
+        }
+        sugsUl.appendChild(li);
+      });
+      card.appendChild(sugsUl);
+    }
+
+    if (r.likely_comment) {
+      card.appendChild(createEl("div", "badge", 'Likely Comment: "' + r.likely_comment + '"'));
+    }
+    card.appendChild(createEl("div", "tag", "Citations: " + (cites || "—")));
     cards.appendChild(card);
   });
 }
@@ -227,9 +303,9 @@ async function seed() {
   try{
     setStatus("Seeding synthetic corpus…");
     const res = await postJSON("/seed", {});
-    setStatus(`Seeded: ${res.ingested_files || 0} files, ${res.ingested_chunks || 0} chunks.`);
+    setStatus("Seeded: " + (res.ingested_files || 0) + " files, " + (res.ingested_chunks || 0) + " chunks.");
   }catch(e){
-    setStatus(`Seed failed: ${e.message}`);
+    setStatus("Seed failed: " + e.message);
   }
 }
 
@@ -238,9 +314,9 @@ async function ingestGlob(){
   try{
     setStatus("Ingesting glob…");
     const res = await postJSON("/ingest", {glob_pattern: globPattern});
-    setStatus(`Ingested: ${res.ingested_files || 0} files, ${res.ingested_chunks || 0} chunks.`);
+    setStatus("Ingested: " + (res.ingested_files || 0) + " files, " + (res.ingested_chunks || 0) + " chunks.");
   }catch(e){
-    setStatus(`Ingest failed: ${e.message}`);
+    setStatus("Ingest failed: " + e.message);
   }
 }
 
@@ -252,9 +328,9 @@ async function uploadFile(){
   try{
     setStatus("Uploading & ingesting…");
     const res = await postJSON("/ingest/upload", form, true);
-    setStatus(`Uploaded: ${res.file}, chunks: ${res.chunks}`);
+    setStatus("Uploaded: " + res.file + ", chunks: " + res.chunks);
   }catch(e){
-    setStatus(`Upload failed: ${e.message}`);
+    setStatus("Upload failed: " + e.message);
   }
 }
 
@@ -263,7 +339,7 @@ async function loadSample(){
     const res = await fetch("/sample_draft").then(r=>r.json());
     $("draft").value = res.draft || "";
   }catch(e){
-    setStatus(`Load sample failed: ${e.message}`);
+    setStatus("Load sample failed: " + e.message);
   }
 }
 
@@ -286,7 +362,7 @@ async function analyze(){
     renderAudienceReport(res.audience_report || {});
     renderAudienceCards(res.audience_bots || [], res.per_audience || {});
   }catch(e){
-    setStatus(`Analyze failed: ${e.message}`);
+    setStatus("Analyze failed: " + e.message);
   }
 }
 

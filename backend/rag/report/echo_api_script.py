@@ -3,11 +3,60 @@ import requests
 from dotenv import load_dotenv
 import os
 import sys
+import re
 
 # Configuration
 load_dotenv()
 API_KEY = os.getenv("ECHO_KEY")
 API_URL = "https://api.anthropic.com/v1/messages"
+
+# Define allowed base directories for file operations
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+ALLOWED_BASE_DIRS = [
+    os.path.normpath(os.path.join(SCRIPT_DIR, "..", "..", "data")),  # backend/data
+    os.path.normpath(os.path.join(SCRIPT_DIR, "..")),  # backend/rag
+]
+
+def get_safe_path(user_input: str) -> str:
+    """Securely resolve a file path, preventing path traversal attacks.
+    
+    Args:
+        user_input: The user-provided file path
+        
+    Returns:
+        A safe, validated absolute path
+        
+    Raises:
+        ValueError: If path is invalid or outside allowed directories
+    """
+    # Reject obvious traversal attempts
+    if '..' in user_input or user_input.startswith('/') and os.name == 'nt':
+        raise ValueError("Invalid path: traversal patterns not allowed")
+    
+    # Only allow alphanumeric, underscores, hyphens, dots, and path separators
+    if not re.match(r'^[\w\-./\\]+$', user_input):
+        raise ValueError("Invalid path: contains disallowed characters")
+    
+    # Resolve to real path (follows symlinks, normalizes)
+    real_path = os.path.realpath(user_input)
+    
+    # Verify the path exists
+    if not os.path.isfile(real_path):
+        raise ValueError(f"File not found: {user_input}")
+    
+    # Verify path is within an allowed directory
+    is_allowed = False
+    for base_dir in ALLOWED_BASE_DIRS:
+        real_base = os.path.realpath(base_dir)
+        if real_path.startswith(real_base + os.sep) or real_path == real_base:
+            is_allowed = True
+            break
+    
+    if not is_allowed:
+        raise ValueError(f"Access denied: file is outside allowed directories")
+    
+    # Return a fresh string constructed from the validated path
+    return str(real_path)
 
 SYSTEM_PROMPT = """You are Echo, an AI editorial assistant that synthesizes specialist analyses into concise summary reports for journalists.
 
@@ -79,16 +128,20 @@ Before analysis, consolidate duplicate/similar items:
 - Output valid JSON only
 - Be concise and actionable"""
 
-def load_json_file(file_path):
-    """Load JSON data from file"""
+def load_json_file(safe_path: str):
+    """Load JSON data from a pre-validated file path.
+    
+    Args:
+        safe_path: A path that has already been validated by get_safe_path()
+    """
     try:
-        with open(file_path, 'r') as f:
+        with open(safe_path, 'r', encoding='utf-8') as f:
             return json.load(f)
     except FileNotFoundError:
-        print(f"Error: File {file_path} not found")
+        print(f"Error: File not found")
         return None
     except json.JSONDecodeError:
-        print(f"Error: Invalid JSON in {file_path}")
+        print(f"Error: Invalid JSON format")
         return None
 
 def call_claude_api(json_data):
@@ -168,4 +221,13 @@ if __name__ == "__main__":
     if len(sys.argv) < 2:
         print("Usage: python echo_api_script.py <json_file_path>")
         sys.exit(1)
-    sys.exit(main(sys.argv[1]))
+    
+    # Validate and sanitize the input path before any file operations
+    try:
+        safe_path = get_safe_path(sys.argv[1])
+    except ValueError as e:
+        print(f"Error: {e}")
+        sys.exit(1)
+    
+    # Use the validated path
+    sys.exit(main(safe_path))

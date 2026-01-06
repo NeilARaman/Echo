@@ -1,19 +1,37 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { readFile, stat } from 'fs/promises'
-import { join } from 'path'
+import { join, resolve, basename } from 'path'
 
 export const dynamic = 'force-dynamic' // avoid caching
+
+// Sanitize path components to prevent path traversal attacks
+function sanitizePath(input: string): string {
+  // Remove any path traversal attempts and get only the base name
+  return basename(input).replace(/[^a-zA-Z0-9_\-\.]/g, '_')
+}
 
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
-    const folder =
+    const rawFolder =
       searchParams.get('communityId') || searchParams.get('communityFolder')
-    const artifactNumber = searchParams.get('artifactNumber')
+    const rawArtifactNumber = searchParams.get('artifactNumber')
 
-    if (!folder || !artifactNumber) {
+    if (!rawFolder || !rawArtifactNumber) {
       return NextResponse.json(
         { error: 'Community folder and artifact number are required' },
+        { status: 400 }
+      )
+    }
+
+    // Sanitize inputs to prevent path traversal
+    const folder = sanitizePath(rawFolder)
+    const artifactNumber = sanitizePath(rawArtifactNumber)
+
+    // Validate artifact number is numeric
+    if (!/^\d+$/.test(artifactNumber)) {
+      return NextResponse.json(
+        { error: 'Artifact number must be numeric' },
         { status: 400 }
       )
     }
@@ -25,7 +43,16 @@ export async function GET(request: NextRequest) {
     ]
 
     // Base: <repo-root>/backend/data/<folder>/
-    const baseDir = join(process.cwd(), 'backend', 'data', folder)
+    const dataRoot = resolve(process.cwd(), 'backend', 'data')
+    const baseDir = join(dataRoot, folder)
+
+    // Ensure the resolved path is still within dataRoot (defense in depth)
+    if (!resolve(baseDir).startsWith(dataRoot)) {
+      return NextResponse.json(
+        { error: 'Invalid folder path' },
+        { status: 400 }
+      )
+    }
 
     // 1) Try llmready / response
     for (const name of filenames) {

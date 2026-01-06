@@ -1,8 +1,58 @@
 import json
 import os
 import sys
+import re
 from typing import Dict, Any, List
 from statistics import mean
+
+# Define allowed base directories for file operations
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+ALLOWED_BASE_DIRS = [
+    os.path.normpath(os.path.join(SCRIPT_DIR, "..", "..", "data")),  # backend/data
+    os.path.normpath(os.path.join(SCRIPT_DIR, "..")),  # backend/rag
+]
+
+def get_safe_path(user_input: str, check_exists: bool = True) -> str:
+    """Securely resolve a file path, preventing path traversal attacks.
+    
+    Args:
+        user_input: The user-provided file path
+        check_exists: Whether to verify the path exists
+        
+    Returns:
+        A safe, validated absolute path
+        
+    Raises:
+        ValueError: If path is invalid or outside allowed directories
+    """
+    # Reject obvious traversal attempts
+    if '..' in user_input or (user_input.startswith('/') and os.name == 'nt'):
+        raise ValueError("Invalid path: traversal patterns not allowed")
+    
+    # Only allow alphanumeric, underscores, hyphens, dots, and path separators
+    if not re.match(r'^[\w\-./\\]+$', user_input):
+        raise ValueError("Invalid path: contains disallowed characters")
+    
+    # Resolve to real path (follows symlinks, normalizes)
+    real_path = os.path.realpath(user_input)
+    
+    # Verify the path exists if required
+    if check_exists and not os.path.exists(real_path):
+        raise ValueError(f"Path not found: {user_input}")
+    
+    # Verify path is within an allowed directory
+    is_allowed = False
+    for base_dir in ALLOWED_BASE_DIRS:
+        real_base = os.path.realpath(base_dir)
+        if real_path.startswith(real_base + os.sep) or real_path == real_base:
+            is_allowed = True
+            break
+    
+    if not is_allowed:
+        raise ValueError("Access denied: path is outside allowed directories")
+    
+    # Return a fresh string constructed from the validated path
+    return str(real_path)
 
 class EchoDataExtractor:
     """Extract and transform analysis data for Echo editorial assistant."""
@@ -185,11 +235,14 @@ class EchoDataExtractor:
         
         return averages
     
-    def transform_to_echo_format(self, analysis_file_path: str) -> Dict[str, Any]:
-        """Main function to transform analysis file to Echo format."""
+    def transform_to_echo_format(self, safe_file_path: str) -> Dict[str, Any]:
+        """Main function to transform analysis file to Echo format.
         
-        # Load the analysis file
-        with open(analysis_file_path, 'r', encoding='utf-8') as f:
+        Args:
+            safe_file_path: A pre-validated file path from get_safe_path()
+        """
+        # Load the analysis file (path already validated)
+        with open(safe_file_path, 'r', encoding='utf-8') as f:
             data = json.load(f)
         
         # Extract the editorial and audience sections
@@ -223,7 +276,7 @@ class EchoDataExtractor:
             "quickest_wins": quickest_wins,
             "audience_data": audience_info,
             "meta": {
-                "source_file": analysis_file_path,
+                "source_file": safe_file_path,
                 "overall_average": averages["overall_average"],
                 "overall_readiness": readiness,
                 "category_averages": averages["by_category"],
@@ -236,11 +289,16 @@ class EchoDataExtractor:
         
         return echo_data
     
-    def save_echo_data(self, echo_data: Dict, output_path: str):
-        """Save the transformed data to a file."""
-        with open(output_path, 'w', encoding='utf-8') as f:
+    def save_echo_data(self, echo_data: Dict, safe_output_path: str):
+        """Save the transformed data to a file.
+        
+        Args:
+            echo_data: The data to save
+            safe_output_path: A pre-validated file path from get_safe_path()
+        """
+        with open(safe_output_path, 'w', encoding='utf-8') as f:
             json.dump(echo_data, f, indent=2, ensure_ascii=False)
-        print(f"Echo data saved to: {output_path}")
+        print(f"Echo data saved to: {safe_output_path}")
     
     def print_summary(self, echo_data: Dict):
         """Print a summary of the extracted data."""
@@ -280,17 +338,26 @@ def main():
     
     args = parser.parse_args()
     
-    if not os.path.exists(args.input_file):
-        print(f"Error: Input file '{args.input_file}' not found")
+    # Validate input file path to prevent path traversal
+    try:
+        safe_input_path = get_safe_path(args.input_file, check_exists=True)
+    except ValueError as e:
+        print(f"Error: {e}")
         return 1
     
     try:
         extractor = EchoDataExtractor()
-        echo_data = extractor.transform_to_echo_format(args.input_file)
+        echo_data = extractor.transform_to_echo_format(safe_input_path)
         
         # Save to file if requested
         if args.output:
-            extractor.save_echo_data(echo_data, args.output)
+            # Validate output path (allow non-existent for new files)
+            try:
+                safe_output_path = get_safe_path(args.output, check_exists=False)
+            except ValueError as e:
+                print(f"Error: {e}")
+                return 1
+            extractor.save_echo_data(echo_data, safe_output_path)
         
         # Print summary if requested
         if args.summary:
@@ -314,18 +381,36 @@ def main():
 
 # Example usage in a script:
 def extract_and_run_echo(analysis_folder_name: str, i: int):
-    """Helper function to extract data and run Echo in one step."""
+    """Helper function to extract data and run Echo in one step.
+    
+    Args:
+        analysis_folder_name: Path to the analysis folder (must be within allowed directories)
+        i: The artifact index number (must be non-negative integer)
+    """
+    # Validate folder path and ensure i is a positive integer
+    if not isinstance(i, int) or i < 0:
+        raise ValueError("Artifact index must be a non-negative integer")
+    
+    # Validate and resolve folder path using get_safe_path
+    safe_folder = get_safe_path(analysis_folder_name, check_exists=True)
+    if not os.path.isdir(safe_folder):
+        raise ValueError(f"Path is not a valid directory")
+    
     extractor = EchoDataExtractor()
     analysis_file_name = f"rag_{i}.json"
-    analysis_file_path = os.path.join(analysis_folder_name, analysis_file_name)
-    echo_data = extractor.transform_to_echo_format(analysis_file_path)
+    analysis_file_path = os.path.join(safe_folder, analysis_file_name)
+    
+    # Validate the input file path
+    safe_input = get_safe_path(analysis_file_path, check_exists=True)
+    echo_data = extractor.transform_to_echo_format(safe_input)
 
     # Save to "llmready_i.json" in the analysis folder
-    output_file = os.path.join(analysis_folder_name, f"llmready_{i}.json")
-    with open(output_file, 'w', encoding='utf-8') as f:
+    output_file = os.path.join(safe_folder, f"llmready_{i}.json")
+    safe_output = get_safe_path(output_file, check_exists=False)
+    with open(safe_output, 'w', encoding='utf-8') as f:
         json.dump(echo_data, f, indent=2, ensure_ascii=False)
     
-    print(f"Echo data saved to: {output_file}")
+    print(f"Echo data saved to: {safe_output}")
     
     echo_script_path = os.path.join(os.path.dirname(__file__), 'echo_api_script.py')
 
@@ -334,18 +419,18 @@ def extract_and_run_echo(analysis_folder_name: str, i: int):
     if os.path.exists(echo_script_path):
         import subprocess
         result = subprocess.run([
-            'python3', echo_script_path, output_file
+            'python3', echo_script_path, safe_output
         ], capture_output=True, text=True)
         
         if result.returncode == 0:
-            #print("ECHO EDITORIAL SUMMARY:")
-            #print("=" * 50)
             print(result.stdout)
             # Save response to response_i.json
-            response_file = os.path.join(analysis_folder_name, f"response_{i}.json")
-            with open(response_file, 'w', encoding='utf-8') as resp_f:
+            response_file_path = os.path.join(safe_folder, f"response_{i}.json")
+            safe_response = get_safe_path(response_file_path, check_exists=False)
+            with open(safe_response, 'w', encoding='utf-8') as resp_f:
                 resp_f.write(result.stdout)
-            print(f"Echo response saved to: {response_file}")
+            print(f"Echo response saved to: {safe_response}")
+            response_file = safe_response
         else:
             print("Error running Echo:", result.stderr)
     else:

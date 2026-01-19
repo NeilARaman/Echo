@@ -57,7 +57,7 @@ COPY . /home/user/app
 RUN bun install
 
 RUN bun add motion tailwindcss-animate tw-animate-css tailwind-merge clsx lucide-react react-icons
-RUN bun add react-fast-marquee cobe @tabler/icons-react react-rough-notation @headlessui/react react-intersection-observer
+RUN bun add react-fast-marquee cobe @tabler/icons-react @headlessui/react react-intersection-observer
 RUN bun add -D eslint eslint-config-next
 RUN bun add -D @eslint/eslintrc
 RUN bun add -D estree-walker@2.0.2 @babel/parser 

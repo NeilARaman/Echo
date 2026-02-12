@@ -3,7 +3,7 @@
 #    This tag provides both amd64 and arm64 variants.
 #    BuildKit will pick the correct one for the current platform
 # ───────────────────────────────────────────
-FROM --platform=linux/amd64 node:22-slim
+FROM --platform=linux/amd64 node:22.22.0-trixie-slim
 
 # ───────────────────────────────────────────
 # 2. Minimal OS tooling
